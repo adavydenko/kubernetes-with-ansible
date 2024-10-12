@@ -1,0 +1,271 @@
+---
+# tasks file for kubernetes_master
+# 1. Install required packages first & clean keyrings
+- name: Install required packages
+  ansible.builtin.apt:
+    pkg:
+      - curl
+      - gnupg2
+      - apt-transport-https
+      - ca-certificates
+    state: present
+    update_cache: true
+  become: true
+
+# 2. Disable swap
+- name: Disable swap
+  ansible.builtin.command:
+    cmd: swapoff -a
+
+- name: Ensure swap is disabled on boot
+  ansible.builtin.command:
+    cmd: sudo sed -i -e '/\/swap.img\s\+none\s\+swap\s\+sw\s\+0\s\+0/s/^/#/' /etc/fstab
+
+# 3. Install container runtime (docker, containerd)
+- name: Install docker
+  ansible.builtin.apt:
+    name: docker.io
+    state: present
+    update_cache: true
+
+# - name: Install containerd runtime
+#  command:
+#    cmd: curl -LO https://github.com/containerd/containerd/releases/download/v1.7.22/containerd-1.7.22-linux-arm64.tar.gz
+
+# - name: Unpack containerd
+#  ansible.builtin.command:
+#    cmd: sudo tar Cxzvf /usr/local containerd-1.7.22-linux-arm64.tar.gz
+
+# - name: Download containerd systemd file
+#  ansible.builtin.command:
+#    cmd: curl -LO https://raw.githubusercontent.com/containerd/containerd/main/containerd.service
+
+# - name: Create folder for the service
+#  file:
+#    path: /usr/lib/systemd/system
+#    mode: 0755
+#    state: directory
+
+# - name: Move containerd to services
+#  command: mv containerd.service /usr/lib/systemd/system
+
+# - name: containerd config folder
+#  file:
+#    path: /etc/containerd
+#    mode: 0755
+#    state: directory
+
+# 4. Configure container runtime
+- name: Add kernel modules for Containerd
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/containerd.conf
+    content: |
+      overlay
+      br_netfilter
+    mode: '0644'
+
+- name: Load kernel modules for cintainerd
+  ansible.builtin.shell:
+    cmd: modprobe overlay && modprobe br_netfilter
+  become: true
+
+- name: Add kernel parameters to Kubernetes
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/kubernetes.conf
+    content: |
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.bridge.bridge-nf-call-iptables = 1
+      net.ipv4.ip_forward = 1
+    mode: '0644'
+
+- name: Load kernel parameter changes
+  ansible.builtin.command:
+    cmd: sudo sysctl --system
+
+# - name: Create containerd config file
+#  ansible.builtin.shell:
+#    cmd: sudo containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
+
+- name: Create containerd config file
+  ansible.builtin.command:
+    cmd: sudo sh -c "containerd config default > /opt/containerd/config.toml"
+
+- name: Enable systemd cgroup driver
+  ansible.builtin.command:
+    cmd: sudo sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /opt/containerd/config.toml
+
+- name: Reload systemd configuration
+  ansible.builtin.command:
+    cmd: systemctl daemon-reload
+
+- name: Restart containerd service
+  ansible.builtin.service:
+    name: containerd
+    state: restarted
+
+# 5. Firewall configurations
+- name: Allow 6443/tcp though firewall
+  ansible.builtin.command:
+    cmd: sudo ufw allow 6443/tcp
+
+- name: Allow 2379:2380/tcp though firewall
+  ansible.builtin.command:
+    cmd: sudo ufw allow 2379:2380/tcp
+
+- name: Allow 22/tcp though firewall
+  ansible.builtin.command:
+    cmd: sudo ufw allow 22/tcp
+
+- name: Allow 8080/tcp though firewall
+  ansible.builtin.command:
+    cmd: sudo ufw allow 8080/tcp
+
+- name: Allow 10250:10252/tcp though firewall
+  ansible.builtin.command:
+    cmd: sudo ufw allow 10250:10252/tcp
+
+- name: Allow 10255/tcp though firewall
+  ansible.builtin.command:
+    cmd: sudo ufw allow 10255/tcp
+
+- name: Allow 5473/tcp though firewall
+  ansible.builtin.command:
+    cmd: sudo ufw allow 5473/tcp
+
+- name: Enable firewall
+  ansible.builtin.ufw:
+    state: enabled
+
+- name: Reload firewall
+  ansible.builtin.command:
+    cmd: sudo ufw reload
+
+# 6. Configure k8s repository for further installation
+
+- name: Remove keyrings directory (if exists)
+  ansible.builtin.shell:
+    cmd: rm -rf /etc/apt/keyrings
+
+- name: Remove existing k8s directory (if exists)
+  ansible.builtin.shell:
+    cmd: sudo rm -rf /etc/apt/sources.list.d/pkgs_k8s_io_core_stable_v1_31_deb.list
+
+- name: Prepare keyrings directory and update permissions
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download k8s GPG key sercurely
+  ansible.builtin.shell:
+    cmd: curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/k8s-apt-keyring.gpg
+
+- name: Add k8s repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/k8s-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /"
+    state: present
+
+- name: Install kubeadm, kubelet, kubectl
+  ansible.builtin.apt:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: present
+    update_cache: true
+
+- name: Hold kubelet, kubeadm, kubectl packages
+  ansible.builtin.command:
+    cmd: sudo apt-mark hold kubelet kubeadm kubectl
+
+# 7. Kubelet configuration
+- name: Replace /etc/default/kubelet contents
+  ansible.builtin.copy:
+    dest: /etc/default/kubelet
+    content: 'KUBELET_EXTRA_ARGS="--cgroup-driver=cgroupfs"'
+    mode: '0644'
+
+- name: Reload systemd configuration
+  ansible.builtin.command:
+    cmd: systemctl daemon-reload
+
+- name: Restart kubelet service
+  ansible.builtin.service:
+    name: kubelet
+    state: restarted
+
+- name: Update system-wide profile for k8s
+  ansible.builtin.copy:
+    dest: /etc/profile.d/kubernetes.sh
+    content: |
+      export KUBECONFIG=/etc/kubernetes/admin.conf
+      export ANSIBLE_USER="sysadmin"
+    mode: '0644'
+
+- name: Reboot the system
+  ansible.builtin.reboot:
+    msg: "Reboot initiated by Ansible for k8s setup"
+    reboot_timeout: 180
+
+# ????
+- name: Replace Docker daemon.json configuration
+  ansible.builtin.copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "exec-opts": ["native.cgroupdriver=systemd"],
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "100m"
+        },
+        "storage-driver": "overlay2"
+      }
+    mode: '0644'
+
+- name: Reload systemd configuration
+  ansible.builtin.command:
+    cmd: systemctl daemon-reload
+
+- name: Restart Docker service
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+
+- name: Pull kubeadm container images
+  ansible.builtin.command:
+    cmd: sudo kubeadm config images pull
+
+# 8. k8s setup
+- name: Initialize k8s control plane
+  ansible.builtin.command:
+    cmd: kubeadm init --pod-network-cidr=10.244.0.0/16
+    creates: /tmp/kubeadm_output
+  register: kubeadm_init_output
+  become: true
+  changed_when: false
+
+- name: Set permissions for Kubernetes admin
+  ansible.builtin.file:
+    path: /etc/kubernetes/admin.conf
+    state: file
+    mode: '0755'
+
+- name: Store Kubernetes initialization output to file
+  ansible.builtin.copy:
+    content: "{{ kubeadm_init_output.stdout }}"
+    dest: /tmp/kubeadm_output
+    mode: '0644'
+  become: true
+  delegate_to: localhost
+
+- name: Generate the 'Join' command
+  ansible.builtin.shell:
+    cmd: cat /tmp/kubeadm_output | tail -n 2 | sed ':a;N;$!ba;s/\\n\s*/ /g' > /tmp/join-command
+  delegate_to: localhost
+
+- name: Set permissions on 'Join' command
+  ansible.builtin.file:
+    path: /tmp/join-command
+    state: file
+    mode: '0755'
+  delegate_to: localhost

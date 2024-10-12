@@ -1,0 +1,17 @@
+---
+master_nodes:
+  hosts:
+    kube-master:
+      ansible_host: 10.0.2.5
+
+worker_nodes:
+  hosts:
+    kube-worker-01:
+      ansible_host: 10.0.2.6
+    kube-worker-02:
+      ansible_host: 10.0.2.7
+
+all:
+  vars:
+    ansible_python_interpreter: "/usr/bin/python3"
+    ansible_user: "sysadmin"

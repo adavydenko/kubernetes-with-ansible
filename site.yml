@@ -1,0 +1,18 @@
+---
+- name: Configure kubernetes master
+  hosts: master_nodes
+  become: true
+  roles:
+    - kubernetes_master
+
+- name: Configure kubernetes network
+  hosts: master_nodes
+  become: true
+  roles:
+    - kubernetes_network
+
+- name: Configure kubernetes worker nodes
+  hosts: worker_nodes
+  become: true
+  roles:
+    - kubernetes_worker
