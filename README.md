@@ -79,9 +79,9 @@ ssh-copy-id your_privileged_user@your_worker_node_ip_address
 
 
 ## Ссылки
-https://infotechys.com/install-kubernetes-using-ansible-on-ubuntu-24-04/
-https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
-https://blog.kubesimplify.com/kubernetes-on-apple-macbooks-m-series
-https://docs.dronahq.com/self-hosted-deployment/deploy-kubernetes-on-macos/
-https://github.com/ids/cluster-builder-vbox
-https://kubernetes.io/ru/docs/concepts/
+ - https://infotechys.com/install-kubernetes-using-ansible-on-ubuntu-24-04/
+ - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+ - https://blog.kubesimplify.com/kubernetes-on-apple-macbooks-m-series
+ - https://docs.dronahq.com/self-hosted-deployment/deploy-kubernetes-on-macos/
+ - https://github.com/ids/cluster-builder-vbox
+ - https://kubernetes.io/ru/docs/concepts/
