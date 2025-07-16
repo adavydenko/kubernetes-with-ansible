@@ -1,73 +1,80 @@
 ---
-# tasks file for kubernetes_master
-# 1. Install required packages first & clean keyrings
-- name: Install required packages
-  ansible.builtin.apt:
-    pkg:
+# Some common OS setup for all the nodes
+- name: Pre-configure nodes
+  block:
+  # tasks file for kubernetes_master
+  # 1. Install required packages first & clean keyrings
+  - name: Install required packages
+    ansible.builtin.apt:
+      pkg:
       - curl
       - gnupg2
       - apt-transport-https
       - ca-certificates
-    state: present
-    update_cache: true
-  become: true
+      state: present
+      update_cache: true
+    become: true
 
-# 2. Disable swap
-- name: Disable swap
-  ansible.builtin.command:
-    cmd: swapoff -a
+  # 2. Disable swap
+  - name: Disable swap
+    ansible.builtin.command:
+      cmd: swapoff -a
 
-- name: Ensure swap is disabled on boot
-  ansible.builtin.command:
-    cmd: sudo sed -i -e '/\/swap.img\s\+none\s\+swap\s\+sw\s\+0\s\+0/s/^/#/' /etc/fstab
+  - name: Ensure swap is disabled on boot
+    ansible.builtin.command:
+      cmd: sudo sed -i -e '/\/swap.img\s\+none\s\+swap\s\+sw\s\+0\s\+0/s/^/#/' /etc/fstab
 
-# 3. Install container runtime (docker, containerd)
-- name: Install docker
-  ansible.builtin.apt:
-    name: docker.io
-    state: present
-    update_cache: true
+# Install Docker/Containerd on host
+- name: Docker/containerd install
+  block:
 
-# - name: Install containerd runtime
-#  command:
-#    cmd: curl -LO https://github.com/containerd/containerd/releases/download/v1.7.22/containerd-1.7.22-linux-arm64.tar.gz
+  # 3. Install container runtime (docker, containerd)
+  - name: Install docker
+    ansible.builtin.apt:
+      name: docker.io
+      state: present
+      update_cache: true
 
-# - name: Unpack containerd
-#  ansible.builtin.command:
-#    cmd: sudo tar Cxzvf /usr/local containerd-1.7.22-linux-arm64.tar.gz
+  # - name: Install containerd runtime
+  #  command:
+  #    cmd: curl -LO https://github.com/containerd/containerd/releases/download/v1.7.22/containerd-1.7.22-linux-arm64.tar.gz
 
-# - name: Download containerd systemd file
-#  ansible.builtin.command:
-#    cmd: curl -LO https://raw.githubusercontent.com/containerd/containerd/main/containerd.service
+  # - name: Unpack containerd
+  #  ansible.builtin.command:
+  #    cmd: sudo tar Cxzvf /usr/local containerd-1.7.22-linux-arm64.tar.gz
 
-# - name: Create folder for the service
-#  file:
-#    path: /usr/lib/systemd/system
-#    mode: 0755
-#    state: directory
+  # - name: Download containerd systemd file
+  #  ansible.builtin.command:
+  #    cmd: curl -LO https://raw.githubusercontent.com/containerd/containerd/main/containerd.service
 
-# - name: Move containerd to services
-#  command: mv containerd.service /usr/lib/systemd/system
+  # - name: Create folder for the service
+  #  file:
+  #    path: /usr/lib/systemd/system
+  #    mode: 0755
+  #    state: directory
 
-# - name: containerd config folder
-#  file:
-#    path: /etc/containerd
-#    mode: 0755
-#    state: directory
+  # - name: Move containerd to services
+  #  command: mv containerd.service /usr/lib/systemd/system
 
-# 4. Configure container runtime
-- name: Add kernel modules for Containerd
-  ansible.builtin.copy:
-    dest: /etc/modules-load.d/containerd.conf
-    content: |
-      overlay
-      br_netfilter
-    mode: '0644'
+  # - name: containerd config folder
+  #  file:
+  #    path: /etc/containerd
+  #    mode: 0755
+  #    state: directory
 
-- name: Load kernel modules for cintainerd
-  ansible.builtin.shell:
-    cmd: modprobe overlay && modprobe br_netfilter
-  become: true
+  # 4. Configure container runtime
+  - name: Add kernel modules for Containerd
+    ansible.builtin.copy:
+      dest: /etc/modules-load.d/containerd.conf
+      content: |
+        overlay
+        br_netfilter
+      mode: '0644'
+
+  - name: Load kernel modules for cintainerd
+    ansible.builtin.shell:
+      cmd: modprobe overlay && modprobe br_netfilter
+    become: true
 
 - name: Add kernel parameters to Kubernetes
   ansible.builtin.copy:
@@ -168,9 +175,9 @@
 - name: Install kubeadm, kubelet, kubectl
   ansible.builtin.apt:
     name:
-      - kubelet
-      - kubeadm
-      - kubectl
+    - kubelet
+    - kubeadm
+    - kubectl
     state: present
     update_cache: true
 
