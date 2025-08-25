@@ -2,16 +2,28 @@
 master_nodes:
   hosts:
     kube-master:
-      ansible_host: 10.0.2.5
+      ansible_host: 192.168.0.181
+      ansible_host: 192.168.0.181
 
 worker_nodes:
   hosts:
     kube-worker-01:
-      ansible_host: 10.0.2.6
+      ansible_host: 192.168.0.175
     kube-worker-02:
-      ansible_host: 10.0.2.7
+      ansible_host: 192.168.0.182
+
+gpu_nodes:
+  hosts:
+    kube-master:
+      ansible_host: 192.168.0.181
+    kube-worker-01:
+      ansible_host: 192.168.0.175
+    kube-worker-02:
+      ansible_host: 192.168.0.182
+      ansible_host: 192.168.0.182
 
 all:
   vars:
     ansible_python_interpreter: "/usr/bin/python3"
-    ansible_user: "sysadmin"
+    ansible_user: "auto"
+    ansible_user: "auto"

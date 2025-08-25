@@ -431,7 +431,26 @@ kubectl describe service <service-name> -n <namespace>
 ```
 
 
+## GPU nodes support
+NVidia provides support for cuda playbooks: https://github.com/NVIDIA/ansible-role-nvidia-driver
 
+### 1. install cuda ansible playbook
+> ansible-galaxy install nvidia.nvidia_driver
+> ansible-playbook -i inventory.yml site_gpu_nodes.yml -K
+
+## Run ansible scripts
+Basic command is:
+> ansible-playbook -i inventory.yml site.yml -K
+
+where:
+| 
+
+| Command Option | Description |
+|----------------|-------------|
+| ansible-playbook | This is the Ansible command used to run playbooks. A playbook is a file containing a series of tasks that Ansible will execute on the specified hosts. |
+| -i hosts | The -i option specifies the inventory file. In this case, hosts is the inventory file that lists the target hosts and their groupings. This file tells Ansible which machines to run the tasks on. |
+| site.yml | This is the name of the playbook file. site.yml contains the tasks and roles that Ansible will execute on the specified hosts. |
+| -K | This option prompts the user for the sudo password. It stands for “ask for privilege escalation password.” This is necessary when tasks in the playbook require elevated privileges (sudo) to execute. |
 
 
 ## Ссылки
@@ -441,8 +460,12 @@ https://blog.kubesimplify.com/kubernetes-on-apple-macbooks-m-series
 https://docs.dronahq.com/self-hosted-deployment/deploy-kubernetes-on-macos/
 https://github.com/ids/cluster-builder-vbox
 https://kubernetes.io/ru/docs/concepts/
-
 ### MetalLB Resources
 https://metallb.universe.tf/
 https://metallb.universe.tf/installation/
 https://metallb.universe.tf/configuration/
+https://github.com/Chris-Greaves/metallb-ansible
+https://github.com/hatamiarash7/Ansible-Install-MetalLb
+https://baltig.infn.it/mgattari/ansible-role-gpu-support
+https://github.com/NVIDIA/k8s-device-plugin
+https://github.com/rohinijoshi06/jupyterhub-on-k8s/tree/master

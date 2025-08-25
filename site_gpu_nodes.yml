@@ -1,0 +1,6 @@
+---
+- name: Install CUDA drivers
+  hosts: gpu_nodes
+  become: true
+  roles:
+  - nvidia.nvidia_driver
