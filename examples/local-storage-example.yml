@@ -1,0 +1,129 @@
+---
+# Пример использования Local Storage Provisioner
+
+# 1. Создание PersistentVolumeClaim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-data-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  resources:
+    requests:
+      storage: 2Gi
+---
+# 2. Deployment с использованием PVC
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage-demo
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storage-demo
+  template:
+    metadata:
+      labels:
+        app: storage-demo
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: app-storage
+          mountPath: /usr/share/nginx/html
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: app-storage
+        persistentVolumeClaim:
+          claimName: app-data-pvc
+---
+# 3. Service для доступа к приложению
+apiVersion: v1
+kind: Service
+metadata:
+  name: storage-demo
+  namespace: default
+spec:
+  selector:
+    app: storage-demo
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+# 4. Job для инициализации данных
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-storage-data
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: init-data
+        image: busybox
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          echo "Initializing storage data..."
+          echo '<!DOCTYPE html>
+          <html>
+          <head>
+              <title>Local Storage Demo</title>
+              <style>
+                  body { font-family: Arial, sans-serif; margin: 40px; }
+                  .container { max-width: 800px; margin: 0 auto; }
+                  .header { background: #f0f0f0; padding: 20px; border-radius: 5px; }
+                  .content { margin: 20px 0; }
+                  .timestamp { color: #666; font-size: 14px; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <div class="header">
+                      <h1>🎉 Local Storage Demo</h1>
+                      <p>This data is stored persistently using Local Storage Provisioner</p>
+                  </div>
+                  <div class="content">
+                      <h2>Features:</h2>
+                      <ul>
+                          <li>✅ Data persists across pod restarts</li>
+                          <li>✅ High performance local storage</li>
+                          <li>✅ Simple configuration</li>
+                          <li>✅ No external dependencies</li>
+                      </ul>
+                      <div class="timestamp">
+                          <p>Last updated: <span id="timestamp"></span></p>
+                      </div>
+                  </div>
+              </div>
+              <script>
+                  document.getElementById("timestamp").textContent = new Date().toLocaleString();
+              </script>
+          </body>
+          </html>' > /data/index.html
+          echo "Data initialized successfully!"
+        volumeMounts:
+        - name: app-storage
+          mountPath: /data
+      volumes:
+      - name: app-storage
+        persistentVolumeClaim:
+          claimName: app-data-pvc
+      restartPolicy: Never
+  backoffLimit: 3

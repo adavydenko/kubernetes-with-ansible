@@ -23,6 +23,12 @@
   roles:
     - metallb
 
+- name: Configure Local Storage
+  hosts: master_nodes
+  become: true
+  roles:
+    - storage
+
 - name: Deploy demo application to test MetalLB
   hosts: master_nodes
   become: true

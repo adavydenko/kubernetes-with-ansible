@@ -1,0 +1,24 @@
+---
+# defaults file for storage - Local Storage Provisioner
+
+# Local Storage Provisioner configuration
+local_storage_enabled: true
+local_storage_namespace: "local-storage-system"
+local_storage_provisioner_image: "registry.k8s.io/sig-storage/local-volume-provisioner:v2.5.0"
+
+# Storage paths on worker nodes
+local_storage_paths:
+  - path: "/mnt/disk1"
+    storage_class: "local-storage"
+    volume_mode: "Filesystem"
+  - path: "/mnt/disk2" 
+    storage_class: "local-storage"
+    volume_mode: "Filesystem"
+
+# Storage classes
+storage_classes:
+  - name: "local-storage"
+    provisioner: "kubernetes.io/no-provisioner"
+    volume_binding_mode: "WaitForFirstConsumer"
+    reclaim_policy: "Retain"
+    is_default: false

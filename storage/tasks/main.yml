@@ -1,0 +1,127 @@
+---
+# tasks file for storage - Local Storage Provisioner
+
+- name: Create storage directories on worker nodes
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  loop: "{{ local_storage_paths }}"
+  when: local_storage_enabled and inventory_hostname in groups['worker_nodes']
+
+- name: Create Local Storage Namespace
+  ansible.builtin.command:
+    cmd: kubectl create namespace {{ local_storage_namespace }} --dry-run=client -o yaml | kubectl apply -f -
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: namespace_create
+  changed_when: "'created' in namespace_create.stdout"
+  when: local_storage_enabled
+
+- name: Create Local Volume Discovery DaemonSet
+  ansible.builtin.copy:
+    dest: /tmp/local-volume-discovery.yaml
+    content: |
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: local-volume-discovery
+        namespace: {{ local_storage_namespace }}
+        labels:
+          app: local-volume-discovery
+      spec:
+        selector:
+          matchLabels:
+            app: local-volume-discovery
+        template:
+          metadata:
+            labels:
+              app: local-volume-discovery
+          spec:
+            serviceAccountName: local-storage-admin
+            containers:
+            - name: local-volume-discovery
+              image: {{ local_storage_provisioner_image }}
+              args:
+              - --configmap=local-volume-discovery
+              - --hostpath=/mnt/disk1
+              - --hostpath=/mnt/disk2
+              volumeMounts:
+              - name: local-storage
+                mountPath: /mnt/disk1
+              - name: local-storage2
+                mountPath: /mnt/disk2
+            volumes:
+            - name: local-storage
+              hostPath:
+                path: /mnt/disk1
+            - name: local-storage2
+              hostPath:
+                path: /mnt/disk2
+  when: local_storage_enabled
+
+- name: Apply Local Volume Discovery
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/local-volume-discovery.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: discovery_apply
+  changed_when: "'configured' in discovery_apply.stdout or 'created' in discovery_apply.stdout"
+  when: local_storage_enabled
+
+- name: Create Storage Class
+  ansible.builtin.copy:
+    dest: /tmp/local-storage-class.yaml
+    content: |
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: local-storage
+        annotations:
+          storageclass.kubernetes.io/is-default-class: "false"
+      provisioner: kubernetes.io/no-provisioner
+      volumeBindingMode: WaitForFirstConsumer
+      reclaimPolicy: Retain
+  when: local_storage_enabled
+
+- name: Apply Storage Class
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/local-storage-class.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: storage_class_apply
+  changed_when: "'configured' in storage_class_apply.stdout or 'created' in storage_class_apply.stdout"
+  when: local_storage_enabled
+
+- name: Wait for Local Storage Provisioner to be ready
+  ansible.builtin.command:
+    cmd: kubectl wait --for=condition=ready pod -l app=local-volume-discovery -n {{ local_storage_namespace }} --timeout=300s
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  when: local_storage_enabled
+
+- name: Verify Storage Class
+  ansible.builtin.command:
+    cmd: kubectl get storageclass
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: storage_class_status
+  changed_when: false
+
+- name: Display Storage Class Status
+  ansible.builtin.debug:
+    msg: "{{ storage_class_status.stdout_lines }}"
+
+- name: Clean up temporary files
+  ansible.builtin.file:
+    path: /tmp/local-volume-discovery.yaml
+    state: absent
+  when: local_storage_enabled
+
+- name: Clean up storage class file
+  ansible.builtin.file:
+    path: /tmp/local-storage-class.yaml
+    state: absent
+  when: local_storage_enabled

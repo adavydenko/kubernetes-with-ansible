@@ -112,6 +112,13 @@ ssh-copy-id your_privileged_user@your_worker_node_ip_address
 - Конфигурацию Layer 2 advertisement
 - Верификацию установки
 
+### storage
+Роль для настройки Local Storage Provisioner - простого и эффективного решения для постоянного хранения данных без использования внешнего NFS. Включает:
+- Local Storage Provisioner с автоматическим обнаружением томов
+- Создание StorageClass для управления томами
+- Настройку путей хранения на worker узлах
+- Высокую производительность локального хранения
+
 ### demo_app
 Роль для развертывания демо-приложения для тестирования MetalLB. Включает:
 - Развертывание nginx приложения
@@ -190,7 +197,7 @@ all:
 
 #### Полное развертывание
 ```bash
-# Развертывание полного кластера с MetalLB
+# Развертывание полного кластера с MetalLB и Local Storage
 ansible-playbook -i inventory.yml site.yml
 ```
 
@@ -207,6 +214,9 @@ ansible-playbook -i inventory.yml site.yml --limit worker_nodes
 
 # MetalLB
 ansible-playbook -i inventory.yml site.yml --tags metallb
+
+# Local Storage
+ansible-playbook -i inventory.yml site.yml --tags storage
 
 # Демо-приложение
 ansible-playbook -i inventory.yml site.yml --tags demo_app
@@ -228,7 +238,13 @@ ansible-playbook -i inventory.yml site.yml --tags demo_app
 - ✅ Layer 2 advertisement настроен
 - ✅ Готов к назначению внешних IP
 
-### 3. Демо-приложение
+### 3. Local Storage
+- ✅ Local Storage Provisioner установлен
+- ✅ StorageClass создан для автоматического управления томами
+- ✅ PersistentVolumes доступны для приложений
+- ✅ Высокая производительность локального хранения
+
+### 4. Демо-приложение
 - ✅ Nginx развернут с 3 репликами
 - ✅ LoadBalancer сервис создан
 - ✅ Внешний IP назначен автоматически
@@ -305,8 +321,11 @@ curl http://10.0.2.240
 ### 4. Автоматическое тестирование
 
 ```bash
-# Запуск автоматического теста
+# Запуск автоматического теста MetalLB
 ./scripts/test-metallb.sh
+
+# Запуск автоматического теста Local Storage
+./scripts/test-local-storage.sh
 
 # Ожидаемый результат:
 # ✓ kubectl is available
