@@ -29,6 +29,12 @@
   roles:
     - storage
 
+- name: Configure Monitoring
+  hosts: master_nodes
+  become: true
+  roles:
+    - monitoring
+
 - name: Deploy demo application to test MetalLB
   hosts: master_nodes
   become: true

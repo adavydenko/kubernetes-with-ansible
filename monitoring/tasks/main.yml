@@ -1,0 +1,579 @@
+---
+# tasks file for monitoring
+
+- name: Create monitoring namespace
+  ansible.builtin.command:
+    cmd: kubectl create namespace {{ monitoring_namespace }} --dry-run=client -o yaml | kubectl apply -f -
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: namespace_create
+  changed_when: "'created' in namespace_create.stdout"
+
+- name: Create monitoring PVCs
+  ansible.builtin.copy:
+    dest: /tmp/monitoring-pvcs.yaml
+    content: |
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: prometheus-data
+        namespace: {{ monitoring_namespace }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: {{ monitoring_storage_class }}
+        resources:
+          requests:
+            storage: {{ prometheus_storage_size }}
+      ---
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: grafana-data
+        namespace: {{ monitoring_namespace }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: {{ monitoring_storage_class }}
+        resources:
+          requests:
+            storage: {{ grafana_storage_size }}
+      ---
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: alertmanager-data
+        namespace: {{ monitoring_namespace }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: {{ monitoring_storage_class }}
+        resources:
+          requests:
+            storage: {{ alertmanager_storage_size }}
+  when: prometheus_enabled or grafana_enabled or alertmanager_enabled
+
+- name: Apply monitoring PVCs
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/monitoring-pvcs.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: pvc_apply
+  changed_when: "'configured' in pvc_apply.stdout or 'created' in pvc_apply.stdout"
+  when: prometheus_enabled or grafana_enabled or alertmanager_enabled
+
+- name: Create Prometheus ConfigMap
+  ansible.builtin.copy:
+    dest: /tmp/prometheus-config.yaml
+    content: |
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: prometheus-config
+        namespace: {{ monitoring_namespace }}
+      data:
+        prometheus.yml: |
+          global:
+            scrape_interval: 15s
+            evaluation_interval: 15s
+          
+          rule_files:
+            - "alert_rules.yml"
+          
+          alerting:
+            alertmanagers:
+              - static_configs:
+                  - targets:
+                    - alertmanager:9093
+          
+          scrape_configs:
+            - job_name: 'kubernetes-apiservers'
+              kubernetes_sd_configs:
+                - role: endpoints
+              scheme: https
+              tls_config:
+                ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+              relabel_configs:
+                - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+                  action: keep
+                  regex: default;kubernetes;https
+            
+            - job_name: 'kubernetes-nodes'
+              kubernetes_sd_configs:
+                - role: node
+              scheme: https
+              tls_config:
+                ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+              relabel_configs:
+                - action: labelmap
+                  regex: __meta_kubernetes_node_label_(.+)
+            
+            - job_name: 'kubernetes-pods'
+              kubernetes_sd_configs:
+                - role: pod
+              relabel_configs:
+                - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+                  action: keep
+                  regex: true
+                - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+                  action: replace
+                  target_label: __metrics_path__
+                  regex: (.+)
+                - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+                  action: replace
+                  regex: ([^:]+)(?::\d+)?;(\d+)
+                  replacement: $1:$2
+                  target_label: __address__
+                - action: labelmap
+                  regex: __meta_kubernetes_pod_label_(.+)
+                - source_labels: [__meta_kubernetes_namespace]
+                  action: replace
+                  target_label: kubernetes_namespace
+                - source_labels: [__meta_kubernetes_pod_name]
+                  action: replace
+                  target_label: kubernetes_pod_name
+            
+            - job_name: 'kube-state-metrics'
+              static_configs:
+                - targets: ['kube-state-metrics.kube-system.svc.cluster.local:8080']
+            
+            - job_name: 'node-exporter'
+              kubernetes_sd_configs:
+                - role: endpoints
+              relabel_configs:
+                - source_labels: [__meta_kubernetes_service_name]
+                  action: keep
+                  regex: node-exporter
+            
+            - job_name: 'nvidia-exporter'
+              kubernetes_sd_configs:
+                - role: endpoints
+              relabel_configs:
+                - source_labels: [__meta_kubernetes_service_name]
+                  action: keep
+                  regex: nvidia-exporter
+  when: prometheus_enabled
+
+- name: Apply Prometheus ConfigMap
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/prometheus-config.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: prometheus_config_apply
+  changed_when: "'configured' in prometheus_config_apply.stdout or 'created' in prometheus_config_apply.stdout"
+  when: prometheus_enabled
+
+- name: Create Prometheus Deployment
+  ansible.builtin.copy:
+    dest: /tmp/prometheus-deployment.yaml
+    content: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: prometheus
+        namespace: {{ monitoring_namespace }}
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: prometheus
+        template:
+          metadata:
+            labels:
+              app: prometheus
+          spec:
+            containers:
+            - name: prometheus
+              image: prom/prometheus:{{ prometheus_version }}
+              args:
+                - '--config.file=/etc/prometheus/prometheus.yml'
+                - '--storage.tsdb.path=/prometheus'
+                - '--storage.tsdb.retention.time={{ prometheus_retention_days }}d'
+                - '--web.console.libraries=/etc/prometheus/console_libraries'
+                - '--web.console.templates=/etc/prometheus/consoles'
+                - '--storage.tsdb.retention.size=500MB'
+                - '--web.enable-lifecycle'
+              ports:
+              - containerPort: 9090
+              volumeMounts:
+              - name: prometheus-config
+                mountPath: /etc/prometheus
+              - name: prometheus-data
+                mountPath: /prometheus
+              resources:
+                requests:
+                  memory: {{ prometheus_resources.requests.memory }}
+                  cpu: {{ prometheus_resources.requests.cpu }}
+                limits:
+                  memory: {{ prometheus_resources.limits.memory }}
+                  cpu: {{ prometheus_resources.limits.cpu }}
+            volumes:
+            - name: prometheus-config
+              configMap:
+                name: prometheus-config
+            - name: prometheus-data
+              persistentVolumeClaim:
+                claimName: prometheus-data
+  when: prometheus_enabled
+
+- name: Apply Prometheus Deployment
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/prometheus-deployment.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: prometheus_deployment_apply
+  changed_when: "'configured' in prometheus_deployment_apply.stdout or 'created' in prometheus_deployment_apply.stdout"
+  when: prometheus_enabled
+
+- name: Create Prometheus Service
+  ansible.builtin.copy:
+    dest: /tmp/prometheus-service.yaml
+    content: |
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: prometheus
+        namespace: {{ monitoring_namespace }}
+      spec:
+        selector:
+          app: prometheus
+        ports:
+        - port: 9090
+          targetPort: 9090
+        type: {{ prometheus_service_type }}
+  when: prometheus_enabled
+
+- name: Apply Prometheus Service
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/prometheus-service.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: prometheus_service_apply
+  changed_when: "'configured' in prometheus_service_apply.stdout or 'created' in prometheus_service_apply.stdout"
+  when: prometheus_enabled
+
+- name: Create Grafana Deployment
+  ansible.builtin.copy:
+    dest: /tmp/grafana-deployment.yaml
+    content: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: grafana
+        namespace: {{ monitoring_namespace }}
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: grafana
+        template:
+          metadata:
+            labels:
+              app: grafana
+          spec:
+            containers:
+            - name: grafana
+              image: grafana/grafana:{{ grafana_version }}
+              ports:
+              - containerPort: 3000
+              env:
+              - name: GF_SECURITY_ADMIN_PASSWORD
+                value: "{{ grafana_admin_password }}"
+              - name: GF_USERS_ALLOW_SIGN_UP
+                value: "false"
+              volumeMounts:
+              - name: grafana-data
+                mountPath: /var/lib/grafana
+              resources:
+                requests:
+                  memory: {{ grafana_resources.requests.memory }}
+                  cpu: {{ grafana_resources.requests.cpu }}
+                limits:
+                  memory: {{ grafana_resources.limits.memory }}
+                  cpu: {{ grafana_resources.limits.cpu }}
+            volumes:
+            - name: grafana-data
+              persistentVolumeClaim:
+                claimName: grafana-data
+  when: grafana_enabled
+
+- name: Apply Grafana Deployment
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/grafana-deployment.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: grafana_deployment_apply
+  changed_when: "'configured' in grafana_deployment_apply.stdout or 'created' in grafana_deployment_apply.stdout"
+  when: grafana_enabled
+
+- name: Create Grafana Service
+  ansible.builtin.copy:
+    dest: /tmp/grafana-service.yaml
+    content: |
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: grafana
+        namespace: {{ monitoring_namespace }}
+      spec:
+        selector:
+          app: grafana
+        ports:
+        - port: 3000
+          targetPort: 3000
+        type: {{ grafana_service_type }}
+  when: grafana_enabled
+
+- name: Apply Grafana Service
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/grafana-service.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: grafana_service_apply
+  changed_when: "'configured' in grafana_service_apply.stdout or 'created' in grafana_service_apply.stdout"
+  when: grafana_enabled
+
+- name: Create Node Exporter DaemonSet
+  ansible.builtin.copy:
+    dest: /tmp/node-exporter-daemonset.yaml
+    content: |
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: node-exporter
+        namespace: {{ monitoring_namespace }}
+      spec:
+        selector:
+          matchLabels:
+            app: node-exporter
+        template:
+          metadata:
+            labels:
+              app: node-exporter
+          spec:
+            containers:
+            - name: node-exporter
+              image: prom/node-exporter:{{ node_exporter_version }}
+              args:
+                - '--path.procfs=/host/proc'
+                - '--path.sysfs=/host/sys'
+                - '--path.rootfs=/host/root'
+                - '--web.listen-address=:9100'
+              ports:
+              - containerPort: 9100
+              volumeMounts:
+              - name: proc
+                mountPath: /host/proc
+                readOnly: true
+              - name: sys
+                mountPath: /host/sys
+                readOnly: true
+              - name: root
+                mountPath: /host/root
+                readOnly: true
+              resources:
+                requests:
+                  memory: {{ node_exporter_resources.requests.memory }}
+                  cpu: {{ node_exporter_resources.requests.cpu }}
+                limits:
+                  memory: {{ node_exporter_resources.limits.memory }}
+                  cpu: {{ node_exporter_resources.limits.cpu }}
+            volumes:
+            - name: proc
+              hostPath:
+                path: /proc
+            - name: sys
+              hostPath:
+                path: /sys
+            - name: root
+              hostPath:
+                path: /
+  when: node_exporter_enabled
+
+- name: Apply Node Exporter DaemonSet
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/node-exporter-daemonset.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: node_exporter_apply
+  changed_when: "'configured' in node_exporter_apply.stdout or 'created' in node_exporter_apply.stdout"
+  when: node_exporter_enabled
+
+- name: Create Node Exporter Service
+  ansible.builtin.copy:
+    dest: /tmp/node-exporter-service.yaml
+    content: |
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: node-exporter
+        namespace: {{ monitoring_namespace }}
+      spec:
+        selector:
+          app: node-exporter
+        ports:
+        - port: 9100
+          targetPort: 9100
+        type: ClusterIP
+  when: node_exporter_enabled
+
+- name: Apply Node Exporter Service
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/node-exporter-service.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: node_exporter_service_apply
+  changed_when: "'configured' in node_exporter_service_apply.stdout or 'created' in node_exporter_service_apply.stdout"
+  when: node_exporter_enabled
+
+- name: Create NVIDIA Node Exporter DaemonSet
+  ansible.builtin.copy:
+    dest: /tmp/nvidia-exporter-daemonset.yaml
+    content: |
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: nvidia-exporter
+        namespace: {{ monitoring_namespace }}
+      spec:
+        selector:
+          matchLabels:
+            app: nvidia-exporter
+        template:
+          metadata:
+            labels:
+              app: nvidia-exporter
+          spec:
+            containers:
+            - name: nvidia-exporter
+              image: dcgmexporter:{{ nvidia_exporter_version }}
+              args:
+                - '--address=:9400'
+                - '--collectors=dcp'
+              ports:
+              - containerPort: 9400
+              env:
+              - name: DCGM_EXP_WAIT_ON_GPU
+                value: "true"
+              - name: DCGM_EXP_INTERVAL
+                value: "15"
+              securityContext:
+                privileged: true
+              volumeMounts:
+              - name: nvidia-dcgm
+                mountPath: /run/nvidia-dcgm
+              - name: nvidia-mps
+                mountPath: /run/nvidia-mps
+              resources:
+                requests:
+                  memory: {{ nvidia_exporter_resources.requests.memory }}
+                  cpu: {{ nvidia_exporter_resources.requests.cpu }}
+                limits:
+                  memory: {{ nvidia_exporter_resources.limits.memory }}
+                  cpu: {{ nvidia_exporter_resources.limits.cpu }}
+            volumes:
+            - name: nvidia-dcgm
+              hostPath:
+                path: /run/nvidia-dcgm
+            - name: nvidia-mps
+              hostPath:
+                path: /run/nvidia-mps
+            tolerations:
+            - key: nvidia.com/gpu
+              operator: Exists
+              effect: NoSchedule
+  when: nvidia_exporter_enabled
+
+- name: Apply NVIDIA Node Exporter DaemonSet
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/nvidia-exporter-daemonset.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: nvidia_exporter_apply
+  changed_when: "'configured' in nvidia_exporter_apply.stdout or 'created' in nvidia_exporter_apply.stdout"
+  when: nvidia_exporter_enabled
+
+- name: Create NVIDIA Node Exporter Service
+  ansible.builtin.copy:
+    dest: /tmp/nvidia-exporter-service.yaml
+    content: |
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: nvidia-exporter
+        namespace: {{ monitoring_namespace }}
+      spec:
+        selector:
+          app: nvidia-exporter
+        ports:
+        - port: 9400
+          targetPort: 9400
+        type: ClusterIP
+  when: nvidia_exporter_enabled
+
+- name: Apply NVIDIA Node Exporter Service
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/nvidia-exporter-service.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: nvidia_exporter_service_apply
+  changed_when: "'configured' in nvidia_exporter_service_apply.stdout or 'created' in nvidia_exporter_service_apply.stdout"
+  when: nvidia_exporter_enabled
+
+- name: Wait for monitoring pods to be ready
+  ansible.builtin.command:
+    cmd: kubectl wait --for=condition=ready pod -l app=prometheus -n {{ monitoring_namespace }} --timeout=300s
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  when: prometheus_enabled
+
+- name: Wait for Grafana pod to be ready
+  ansible.builtin.command:
+    cmd: kubectl wait --for=condition=ready pod -l app=grafana -n {{ monitoring_namespace }} --timeout=300s
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  when: grafana_enabled
+
+- name: Wait for Node Exporter pods to be ready
+  ansible.builtin.command:
+    cmd: kubectl wait --for=condition=ready pod -l app=node-exporter -n {{ monitoring_namespace }} --timeout=300s
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  when: node_exporter_enabled
+
+- name: Wait for NVIDIA Node Exporter pods to be ready
+  ansible.builtin.command:
+    cmd: kubectl wait --for=condition=ready pod -l app=nvidia-exporter -n {{ monitoring_namespace }} --timeout=300s
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  when: nvidia_exporter_enabled
+
+- name: Verify monitoring installation
+  ansible.builtin.command:
+    cmd: kubectl get pods -n {{ monitoring_namespace }}
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: monitoring_status
+  changed_when: false
+
+- name: Display monitoring status
+  ansible.builtin.debug:
+    msg: "{{ monitoring_status.stdout_lines }}"
+
+- name: Clean up temporary files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/monitoring-pvcs.yaml
+    - /tmp/prometheus-config.yaml
+    - /tmp/prometheus-deployment.yaml
+    - /tmp/prometheus-service.yaml
+    - /tmp/grafana-deployment.yaml
+    - /tmp/grafana-service.yaml
+    - /tmp/node-exporter-daemonset.yaml
+    - /tmp/node-exporter-service.yaml
+    - /tmp/nvidia-exporter-daemonset.yaml
+    - /tmp/nvidia-exporter-service.yaml

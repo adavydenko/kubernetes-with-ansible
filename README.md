@@ -119,6 +119,13 @@ ssh-copy-id your_privileged_user@your_worker_node_ip_address
 - Настройку путей хранения на worker узлах
 - Высокую производительность локального хранения
 
+### monitoring
+Роль для настройки системы мониторинга Prometheus + Grafana. Включает:
+- Prometheus для сбора и хранения метрик
+- Grafana для визуализации и дашбордов
+- Node Exporter для метрик узлов кластера
+- Настройку алертов и уведомлений
+
 ### demo_app
 Роль для развертывания демо-приложения для тестирования MetalLB. Включает:
 - Развертывание nginx приложения
@@ -197,7 +204,7 @@ all:
 
 #### Полное развертывание
 ```bash
-# Развертывание полного кластера с MetalLB и Local Storage
+# Развертывание полного кластера с MetalLB, Local Storage и Monitoring
 ansible-playbook -i inventory.yml site.yml
 ```
 
@@ -217,6 +224,9 @@ ansible-playbook -i inventory.yml site.yml --tags metallb
 
 # Local Storage
 ansible-playbook -i inventory.yml site.yml --tags storage
+
+# Monitoring
+ansible-playbook -i inventory.yml site.yml --tags monitoring
 
 # Демо-приложение
 ansible-playbook -i inventory.yml site.yml --tags demo_app
@@ -244,7 +254,13 @@ ansible-playbook -i inventory.yml site.yml --tags demo_app
 - ✅ PersistentVolumes доступны для приложений
 - ✅ Высокая производительность локального хранения
 
-### 4. Демо-приложение
+### 4. Monitoring
+- ✅ Prometheus установлен для сбора метрик
+- ✅ Grafana установлен для визуализации
+- ✅ Node Exporter собирает метрики узлов
+- ✅ Система готова к настройке алертов
+
+### 5. Демо-приложение
 - ✅ Nginx развернут с 3 репликами
 - ✅ LoadBalancer сервис создан
 - ✅ Внешний IP назначен автоматически
@@ -326,6 +342,9 @@ curl http://10.0.2.240
 
 # Запуск автоматического теста Local Storage
 ./scripts/test-local-storage.sh
+
+# Запуск автоматического теста Monitoring
+./scripts/test-monitoring.sh
 
 # Ожидаемый результат:
 # ✓ kubectl is available

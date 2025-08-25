@@ -1,0 +1,182 @@
+---
+# Пример конфигурации для включения NVIDIA Node Exporter
+
+# 1. Обновление настроек мониторинга
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitoring-config
+  namespace: monitoring
+data:
+  nvidia_exporter_enabled: "true"
+---
+# 2. Пример алертов для GPU
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nvidia-alerts
+  namespace: monitoring
+data:
+  nvidia_alerts.yml: |
+    groups:
+    - name: nvidia-gpu
+      rules:
+      - alert: HighGPUUtilization
+        expr: DCGM_FI_DEV_GPU_UTIL > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High GPU utilization on {{ $labels.gpu }}"
+          description: "GPU utilization is above 90% for 5 minutes"
+      
+      - alert: HighGPUMemoryUsage
+        expr: (DCGM_FI_DEV_FB_USED / DCGM_FI_DEV_FB_TOTAL) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High GPU memory usage on {{ $labels.gpu }}"
+          description: "GPU memory usage is above 85% for 5 minutes"
+      
+      - alert: GPUOverheating
+        expr: DCGM_FI_DEV_GPU_TEMP > 80
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "GPU overheating on {{ $labels.gpu }}"
+          description: "GPU temperature is above 80°C for 2 minutes"
+      
+      - alert: GPUFanFailure
+        expr: DCGM_FI_DEV_FAN_SPEED == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "GPU fan failure on {{ $labels.gpu }}"
+          description: "GPU fan is not spinning"
+      
+      - alert: GPUPowerLimit
+        expr: DCGM_FI_DEV_POWER_USAGE > DCGM_FI_DEV_POWER_MGMT_LIMIT * 0.95
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "GPU approaching power limit on {{ $labels.gpu }}"
+          description: "GPU power usage is above 95% of limit"
+---
+# 3. Пример дашборда для Grafana
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nvidia-dashboard
+  namespace: monitoring
+data:
+  nvidia-dashboard.json: |
+    {
+      "dashboard": {
+        "title": "NVIDIA GPU Monitoring",
+        "panels": [
+          {
+            "title": "GPU Utilization",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "DCGM_FI_DEV_GPU_UTIL",
+                "legendFormat": "GPU {{gpu}}"
+              }
+            ]
+          },
+          {
+            "title": "GPU Memory Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "(DCGM_FI_DEV_FB_USED / DCGM_FI_DEV_FB_TOTAL) * 100",
+                "legendFormat": "GPU {{gpu}}"
+              }
+            ]
+          },
+          {
+            "title": "GPU Temperature",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "DCGM_FI_DEV_GPU_TEMP",
+                "legendFormat": "GPU {{gpu}}"
+              }
+            ]
+          },
+          {
+            "title": "GPU Power Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "DCGM_FI_DEV_POWER_USAGE",
+                "legendFormat": "GPU {{gpu}}"
+              }
+            ]
+          }
+        ]
+      }
+    }
+---
+# 4. Пример использования GPU в приложении
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpu-app-example
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpu-app
+  template:
+    metadata:
+      labels:
+        app: gpu-app
+    spec:
+      containers:
+      - name: gpu-app
+        image: nvidia/cuda:11.0-base
+        command: ["nvidia-smi", "-l", "1"]
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - name: nvidia-runtime
+          mountPath: /usr/local/nvidia
+      volumes:
+      - name: nvidia-runtime
+        hostPath:
+          path: /usr/local/nvidia
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+---
+# 5. Инструкции по настройке
+
+# Для включения NVIDIA Node Exporter:
+# 1. Убедитесь, что на узлах установлены NVIDIA драйверы
+# 2. Установите NVIDIA Container Runtime
+# 3. Настройте nvidia_exporter_enabled: true в defaults/main.yml
+# 4. Запустите: ansible-playbook -i inventory.yml site.yml --tags monitoring
+
+# Проверка установки:
+# kubectl get pods -n monitoring -l app=nvidia-exporter
+# kubectl logs -n monitoring daemonset/nvidia-exporter
+
+# Доступ к метрикам:
+# kubectl port-forward -n monitoring svc/nvidia-exporter 9400:9400
+# curl http://localhost:9400/metrics
+
+# Основные метрики NVIDIA:
+# - DCGM_FI_DEV_GPU_UTIL: GPU utilization %
+# - DCGM_FI_DEV_FB_USED: GPU memory used (bytes)
+# - DCGM_FI_DEV_FB_TOTAL: GPU memory total (bytes)
+# - DCGM_FI_DEV_GPU_TEMP: GPU temperature (°C)
+# - DCGM_FI_DEV_POWER_USAGE: GPU power usage (W)
+# - DCGM_FI_DEV_FAN_SPEED: GPU fan speed (%)

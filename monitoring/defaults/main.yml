@@ -1,0 +1,94 @@
+---
+# defaults file for monitoring
+
+# Prometheus configuration
+prometheus_enabled: true
+prometheus_namespace: "monitoring"
+prometheus_version: "v2.45.0"
+prometheus_retention_days: 15
+prometheus_storage_size: "10Gi"
+
+# Grafana configuration
+grafana_enabled: true
+grafana_namespace: "monitoring"
+grafana_version: "9.5.2"
+grafana_admin_password: "admin123"
+grafana_storage_size: "5Gi"
+
+# Alertmanager configuration
+alertmanager_enabled: true
+alertmanager_namespace: "monitoring"
+alertmanager_version: "v0.25.0"
+alertmanager_storage_size: "5Gi"
+
+# Node Exporter configuration
+node_exporter_enabled: true
+node_exporter_namespace: "monitoring"
+node_exporter_version: "v1.6.1"
+
+# Kube State Metrics configuration
+kube_state_metrics_enabled: true
+kube_state_metrics_namespace: "monitoring"
+kube_state_metrics_version: "v2.8.2"
+
+# NVIDIA Node Exporter configuration
+nvidia_exporter_enabled: false
+nvidia_exporter_namespace: "monitoring"
+nvidia_exporter_version: "v1.2.0"
+
+# Storage configuration
+monitoring_storage_class: "local-storage"
+
+# Service configuration
+prometheus_service_type: "ClusterIP"
+grafana_service_type: "LoadBalancer"
+alertmanager_service_type: "ClusterIP"
+
+# Resource limits
+prometheus_resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+grafana_resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+
+alertmanager_resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+
+node_exporter_resources:
+  requests:
+    memory: "64Mi"
+    cpu: "50m"
+  limits:
+    memory: "128Mi"
+    cpu: "100m"
+
+kube_state_metrics_resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+
+nvidia_exporter_resources:
+  requests:
+    memory: "64Mi"
+    cpu: "50m"
+  limits:
+    memory: "128Mi"
+    cpu: "100m"
