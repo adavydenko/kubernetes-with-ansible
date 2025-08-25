@@ -1,0 +1,28 @@
+---
+# vars file for metallb
+
+# MetalLB configuration variables
+metallb_config:
+  # Default IP range for LoadBalancer services
+  # This should be in the same subnet as your cluster nodes
+  # but outside the DHCP range
+  ip_range: "10.0.2.240-10.0.2.250"
+  
+  # Layer 2 configuration
+  layer2:
+    enabled: true
+    interfaces: []  # Empty means all interfaces
+    
+  # BGP configuration (optional)
+  bgp:
+    enabled: false
+    peers: []
+    
+  # Service configuration
+  services:
+    # Default service type for applications
+    default_type: "LoadBalancer"
+    
+    # Annotations for MetalLB
+    annotations:
+      metallb.universe.tf/allow-shared-ip: "true"

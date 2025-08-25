@@ -1,0 +1,16 @@
+---
+# handlers file for metallb
+
+- name: Restart MetalLB
+  ansible.builtin.command:
+    cmd: kubectl rollout restart deployment -n {{ metallb_namespace }}
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  listen: "restart metallb"
+
+- name: Reload MetalLB configuration
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/metallb-config.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  listen: "reload metallb config"

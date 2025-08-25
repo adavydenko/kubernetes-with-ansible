@@ -1,0 +1,6 @@
+---
+- name: Test MetalLB installation
+  hosts: master_nodes
+  become: true
+  roles:
+    - metallb

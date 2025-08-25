@@ -1,0 +1,115 @@
+---
+# Examples of using MetalLB with different configurations
+
+# Example 1: Basic LoadBalancer service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: default
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: nginx
+
+---
+# Example 2: LoadBalancer with specific IP pool
+apiVersion: v1
+kind: Service
+metadata:
+  name: production-app
+  namespace: production
+  annotations:
+    metallb.universe.tf/address-pool: "production-pool"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: production-app
+
+---
+# Example 3: LoadBalancer with shared IP
+apiVersion: v1
+kind: Service
+metadata:
+  name: app1
+  namespace: default
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "shared-ip"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: app1
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app2
+  namespace: default
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "shared-ip"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: app2
+
+---
+# Example 4: LoadBalancer with multiple ports
+apiVersion: v1
+kind: Service
+metadata:
+  name: multi-port-app
+  namespace: default
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
+    protocol: TCP
+  - name: api
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: multi-port-app
+
+---
+# Example 5: LoadBalancer with session affinity
+apiVersion: v1
+kind: Service
+metadata:
+  name: session-app
+  namespace: default
+spec:
+  type: LoadBalancer
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 3600
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: session-app

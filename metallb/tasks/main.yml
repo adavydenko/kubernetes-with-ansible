@@ -1,0 +1,96 @@
+---
+# tasks file for metallb
+
+- name: Install MetalLB using manifest
+  ansible.builtin.command:
+    cmd: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: metallb_install
+  changed_when: "'configured' in metallb_install.stdout or 'created' in metallb_install.stdout"
+  when: install_metallb
+
+- name: Wait for MetalLB namespace to be created
+  ansible.builtin.command:
+    cmd: kubectl wait --for=condition=ready pod -l app=metallb -n {{ metallb_namespace }} --timeout=300s
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  when: install_metallb
+
+- name: Create IPAddressPool configuration
+  ansible.builtin.copy:
+    dest: /tmp/ipaddresspool.yaml
+    content: |
+      apiVersion: metallb.io/v1beta1
+      kind: IPAddressPool
+      metadata:
+        name: {{ item.name }}
+        namespace: {{ metallb_namespace }}
+      spec:
+        addresses:
+        - {{ item.start }}-{{ item.end }}
+  when: configure_ip_pool
+  loop: "{{ metallb_ip_pool }}"
+
+- name: Apply IPAddressPool configuration
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/ipaddresspool.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: ip_pool_apply
+  changed_when: "'configured' in ip_pool_apply.stdout or 'created' in ip_pool_apply.stdout"
+  when: configure_ip_pool
+
+- name: Create L2Advertisement configuration
+  ansible.builtin.copy:
+    dest: /tmp/l2advertisement.yaml
+    content: |
+      apiVersion: metallb.io/v1beta1
+      kind: L2Advertisement
+      metadata:
+        name: {{ item.name }}
+        namespace: {{ metallb_namespace }}
+      spec:
+        {% if item.interfaces %}
+        interfaces:
+        {% for interface in item.interfaces %}
+        - {{ interface }}
+        {% endfor %}
+        {% endif %}
+        ipAddressPools:
+        - {{ item.name }}
+  when: configure_layer2
+  loop: "{{ metallb_layer2_config }}"
+
+- name: Apply L2Advertisement configuration
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/l2advertisement.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: l2_adv_apply
+  changed_when: "'configured' in l2_adv_apply.stdout or 'created' in l2_adv_apply.stdout"
+  when: configure_layer2
+
+- name: Verify MetalLB installation
+  ansible.builtin.command:
+    cmd: kubectl get pods -n {{ metallb_namespace }}
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: metallb_status
+  changed_when: false
+
+- name: Display MetalLB status
+  ansible.builtin.debug:
+    msg: "{{ metallb_status.stdout_lines }}"
+
+- name: Clean up temporary files
+  ansible.builtin.file:
+    path: /tmp/ipaddresspool.yaml
+    state: absent
+  when: configure_ip_pool
+
+- name: Clean up temporary L2Advertisement files
+  ansible.builtin.file:
+    path: /tmp/l2advertisement.yaml
+    state: absent
+  when: configure_layer2

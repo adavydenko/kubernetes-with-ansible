@@ -1,0 +1,29 @@
+---
+# defaults file for metallb
+
+# MetalLB version
+metallb_version: "v0.13.12"
+
+# IP address pool configuration
+# Define the range of IP addresses that MetalLB can assign to LoadBalancer services
+metallb_ip_pool:
+  - start: "10.0.2.240"
+    end: "10.0.2.250"
+    name: "first-pool"
+
+# Layer 2 configuration
+metallb_layer2_config:
+  - name: "l2advertisement"
+    interfaces: []  # Empty means all interfaces
+
+# Namespace for MetalLB
+metallb_namespace: "metallb-system"
+
+# Enable MetalLB installation
+install_metallb: true
+
+# Enable IP address pool configuration
+configure_ip_pool: true
+
+# Enable Layer 2 advertisement
+configure_layer2: true
