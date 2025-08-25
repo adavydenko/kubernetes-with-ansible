@@ -16,3 +16,15 @@
   become: true
   roles:
     - kubernetes_worker
+
+- name: Install and configure MetalLB load balancer
+  hosts: master_nodes
+  become: true
+  roles:
+    - metallb
+
+- name: Deploy demo application to test MetalLB
+  hosts: master_nodes
+  become: true
+  roles:
+    - demo_app
