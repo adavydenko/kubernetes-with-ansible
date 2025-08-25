@@ -131,8 +131,8 @@
     cmd: sudo ufw allow 5473/tcp
     
 - name: Enable firewall
-  command:
-    cmd: sudo ufw enable
+  ufw:
+    state: enabled
   changed_when: false
     
 - name: Reload firewall
