@@ -1,9 +1,16 @@
 ---
 # tasks file for kubernetes_network
 - name: Install Flannel network plugin
-  shell:
-    cmd: su - $ANSIBLE_USER -c "kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
-    
+  ansible.builtin.command:
+    cmd: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: flannel_apply
+  changed_when: "'configured' in flannel_apply.stdout or 'created' in flannel_apply.stdout"
+
 - name: Taint master node to prevent workload scheduling
-  shell:
-    cmd: su - $ANSIBLE_USER -c "kubectl taint nodes --all node-role.kubernetes.io/control-plane-"
+  ansible.builtin.command:
+    cmd: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  changed_when: false

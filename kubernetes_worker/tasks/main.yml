@@ -131,12 +131,14 @@
     cmd: sudo ufw allow 5473/tcp
     
 - name: Enable firewall
-  ufw:
-    state: enabled
+  command:
+    cmd: sudo ufw enable
+  changed_when: false
     
 - name: Reload firewall
   command:
     cmd: sudo ufw reload
+  changed_when: false
     
 # 6. Configure k8s repository for further installation
 
@@ -196,14 +198,9 @@
     msg: "Reboot initiated by Ansible for k8s setup"
     reboot_timeout: 180
     
-# 8. join k8s master
-- name: Copy join-command to worker nodes
-  copy:
-    src: /tmp/join-command
-    dest: /tmp/join-command
-    mode: '0755'
-    
-- name: Join worker nodes to master
-  shell:
-    cmd: sh /tmp/join-command
+# 8. Join k8s master (idempotent)
+- name: Join worker node to cluster if not joined
+  ansible.builtin.command:
+    cmd: "{{ hostvars['localhost'].kubeadm_join_command }} --ignore-preflight-errors=all"
+    creates: /etc/kubernetes/kubelet.conf
   become: true

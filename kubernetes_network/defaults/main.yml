@@ -1,2 +1,4 @@
 ---
 # defaults file for kubernetes_network
+
+network_plugin: "flannel"

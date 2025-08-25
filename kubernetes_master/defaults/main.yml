@@ -1,2 +1,15 @@
 ---
 # defaults file for kubernetes_master
+
+# Kubernetes version and repo
+k8s_version: "1.31"
+k8s_repo_url: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/"
+
+# Networking
+pod_network_cidr: "10.244.0.0/16"
+
+# Firewall control
+use_ufw: false
+
+# Network plugin selection
+network_plugin: "flannel"

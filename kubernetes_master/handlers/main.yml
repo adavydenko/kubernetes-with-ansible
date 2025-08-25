@@ -1,2 +1,7 @@
 ---
 # handlers file for kubernetes_master
+
+- name: Restart containerd
+  ansible.builtin.service:
+    name: containerd
+    state: restarted
