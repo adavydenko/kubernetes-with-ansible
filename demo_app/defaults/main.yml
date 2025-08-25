@@ -1,0 +1,25 @@
+---
+# defaults file for demo_app
+
+# Demo application configuration
+demo_app:
+  name: "nginx-demo"
+  namespace: "demo"
+  replicas: 3
+  image: "nginx:latest"
+  port: 80
+  service_type: "LoadBalancer"
+  
+# Enable demo application deployment
+deploy_demo_app: true
+
+# Enable demo application service
+deploy_demo_service: true
+
+# Enable demo application ingress (optional)
+deploy_demo_ingress: false
+
+# Demo application labels
+demo_labels:
+  app: "nginx-demo"
+  environment: "demo"

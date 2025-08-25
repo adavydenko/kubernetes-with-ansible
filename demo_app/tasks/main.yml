@@ -1,0 +1,130 @@
+---
+# tasks file for demo_app
+
+- name: Create demo namespace
+  ansible.builtin.command:
+    cmd: kubectl create namespace {{ demo_app.namespace }} --dry-run=client -o yaml | kubectl apply -f -
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: namespace_create
+  changed_when: "'created' in namespace_create.stdout or 'configured' in namespace_create.stdout"
+  when: deploy_demo_app
+
+- name: Create demo deployment manifest
+  ansible.builtin.copy:
+    dest: /tmp/demo-deployment.yaml
+    content: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: {{ demo_app.name }}
+        namespace: {{ demo_app.namespace }}
+        labels:
+          app: {{ demo_labels.app }}
+          environment: {{ demo_labels.environment }}
+      spec:
+        replicas: {{ demo_app.replicas }}
+        selector:
+          matchLabels:
+            app: {{ demo_labels.app }}
+        template:
+          metadata:
+            labels:
+              app: {{ demo_labels.app }}
+              environment: {{ demo_labels.environment }}
+          spec:
+            containers:
+            - name: {{ demo_app.name }}
+              image: {{ demo_app.image }}
+              ports:
+              - containerPort: {{ demo_app.port }}
+              resources:
+                requests:
+                  memory: "64Mi"
+                  cpu: "50m"
+                limits:
+                  memory: "128Mi"
+                  cpu: "100m"
+  when: deploy_demo_app
+
+- name: Apply demo deployment
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/demo-deployment.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: deployment_apply
+  changed_when: "'created' in deployment_apply.stdout or 'configured' in deployment_apply.stdout"
+  when: deploy_demo_app
+
+- name: Wait for demo deployment to be ready
+  ansible.builtin.command:
+    cmd: kubectl rollout status deployment/{{ demo_app.name }} -n {{ demo_app.namespace }} --timeout=300s
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  when: deploy_demo_app
+
+- name: Create demo service manifest
+  ansible.builtin.copy:
+    dest: /tmp/demo-service.yaml
+    content: |
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: {{ demo_app.name }}-service
+        namespace: {{ demo_app.namespace }}
+        labels:
+          app: {{ demo_labels.app }}
+          environment: {{ demo_labels.environment }}
+        annotations:
+          metallb.universe.tf/allow-shared-ip: "true"
+      spec:
+        type: {{ demo_app.service_type }}
+        ports:
+        - port: {{ demo_app.port }}
+          targetPort: {{ demo_app.port }}
+          protocol: TCP
+        selector:
+          app: {{ demo_labels.app }}
+  when: deploy_demo_service
+
+- name: Apply demo service
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/demo-service.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: service_apply
+  changed_when: "'created' in service_apply.stdout or 'configured' in service_apply.stdout"
+  when: deploy_demo_service
+
+- name: Wait for service to get external IP
+  ansible.builtin.command:
+    cmd: kubectl get service {{ demo_app.name }}-service -n {{ demo_app.namespace }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: service_ip
+  until: service_ip.stdout != ""
+  retries: 30
+  delay: 10
+  when: deploy_demo_service
+
+- name: Display service information
+  ansible.builtin.debug:
+    msg: |
+      Demo application deployed successfully!
+      Service: {{ demo_app.name }}-service
+      External IP: {{ service_ip.stdout }}
+      Namespace: {{ demo_app.namespace }}
+      Test with: curl http://{{ service_ip.stdout }}
+  when: deploy_demo_service
+
+- name: Clean up temporary files
+  ansible.builtin.file:
+    path: /tmp/demo-deployment.yaml
+    state: absent
+  when: deploy_demo_app
+
+- name: Clean up temporary service files
+  ansible.builtin.file:
+    path: /tmp/demo-service.yaml
+    state: absent
+  when: deploy_demo_service
