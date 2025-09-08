@@ -1,102 +1,102 @@
-# Kubernetes Cluster Deployment Guide with MetalLB
+# Руководство по развертыванию кластера Kubernetes с MetalLB
 
-This guide provides step-by-step instructions for deploying a complete Kubernetes cluster with MetalLB load balancer using Ansible.
+Это руководство предоставляет пошаговые инструкции по развертыванию полного кластера Kubernetes с балансировщиком нагрузки MetalLB с использованием Ansible.
 
-## Prerequisites
+## Предварительные требования
 
-### System Requirements
-- **Control Node**: Ubuntu Desktop 24.10 or similar
-- **Cluster Nodes**: Ubuntu Server 24.04 LTS
-- **RAM**: Minimum 2GB per node (4GB recommended)
-- **CPU**: 2 cores per node (4 cores recommended)
-- **Storage**: 20GB per node
-- **Network**: All nodes must be in the same L2 network
+### Системные требования
+- **Управляющий узел**: Ubuntu Desktop 24.10 или аналогичный
+- **Узлы кластера**: Ubuntu Server 24.04 LTS
+- **ОЗУ**: Минимум 2 ГБ на узел (рекомендуется 4 ГБ)
+- **ЦП**: 2 ядра на узел (рекомендуется 4 ядра)
+- **Хранилище**: 20 ГБ на узел
+- **Сеть**: Все узлы должны находиться в одной L2 сети
 
-### Software Requirements
+### Требования к программному обеспечению
 - Ansible 2.14+
-- VirtualBox 7.0+ (for VM-based deployment)
-- SSH access between all nodes
+- VirtualBox 7.0+ (для развертывания на виртуальных машинах)
+- SSH доступ между всеми узлами
 
-## Network Configuration
+## Конфигурация сети
 
-### IP Address Scheme
+### Схема IP-адресов
 ```
-Control Node:    10.0.2.15
-Master Node:     10.0.2.5
-Worker Node 1:   10.0.2.6
-Worker Node 2:   10.0.2.7
+Управляющий узел:    10.0.2.15
+Мастер-узел:         10.0.2.5
+Рабочий узел 1:      10.0.2.6
+Рабочий узел 2:      10.0.2.7
 ...
-Worker Node N:   10.0.2.(5+N)
+Рабочий узел N:      10.0.2.(5+N)
 
-MetalLB Pool:    10.0.2.240 - 10.0.2.250
+Пул MetalLB:         10.0.2.240 - 10.0.2.250
 ```
 
-### Network Requirements
-- All nodes must be able to communicate with each other
-- Port 22 (SSH) must be open between nodes
-- Kubernetes ports (6443, 2379-2380, 10250-10252) must be accessible
-- MetalLB requires L2 network connectivity
+### Требования к сети
+- Все узлы должны иметь возможность взаимодействовать друг с другом
+- Порт 22 (SSH) должен быть открыт между узлами
+- Порты Kubernetes (6443, 2379-2380, 10250-10252) должны быть доступны
+- MetalLB требует L2 сетевого подключения
 
-## Step-by-Step Deployment
+## Пошаговое развертывание
 
-### 1. Prepare Virtual Machines
+### 1. Подготовка виртуальных машин
 
-#### Create Control Node
+#### Создание управляющего узла
 ```bash
-# Create Ubuntu Desktop VM
-# - Name: control
+# Создать виртуальную машину Ubuntu Desktop
+# - Имя: control
 # - IP: 10.0.2.15
-# - RAM: 2GB
-# - Storage: 20GB
+# - ОЗУ: 2 ГБ
+# - Хранилище: 20 ГБ
 ```
 
-#### Create Master Node
+#### Создание мастер-узла
 ```bash
-# Create Ubuntu Server VM
-# - Name: kube-master
+# Создать виртуальную машину Ubuntu Server
+# - Имя: kube-master
 # - IP: 10.0.2.5
-# - RAM: 4GB
-# - Storage: 30GB
+# - ОЗУ: 4 ГБ
+# - Хранилище: 30 ГБ
 ```
 
-#### Create Worker Nodes
+#### Создание рабочих узлов
 ```bash
-# Create Ubuntu Server VMs
-# - Name: kube-worker-01, kube-worker-02, etc.
-# - IP: 10.0.2.6, 10.0.2.7, etc.
-# - RAM: 4GB each
-# - Storage: 30GB each
+# Создать виртуальные машины Ubuntu Server
+# - Имена: kube-worker-01, kube-worker-02, и т.д.
+# - IP: 10.0.2.6, 10.0.2.7, и т.д.
+# - ОЗУ: 4 ГБ каждая
+# - Хранилище: 30 ГБ каждая
 ```
 
-### 2. Configure Control Node
+### 2. Настройка управляющего узла
 
-#### Install Ansible
+#### Установка Ansible
 ```bash
 sudo apt update
 sudo apt install ansible -y
 ```
 
-#### Setup SSH Keys
+#### Настройка SSH ключей
 ```bash
-# Generate SSH key
+# Сгенерировать SSH ключ
 ssh-keygen -t rsa -b 4096 -C "ansible@control"
 
-# Copy keys to all nodes
+# Скопировать ключи на все узлы
 ssh-copy-id user@10.0.2.5  # master
 ssh-copy-id user@10.0.2.6  # worker-01
 ssh-copy-id user@10.0.2.7  # worker-02
-# ... repeat for all worker nodes
+# ... повторить для всех рабочих узлов
 ```
 
-#### Clone Repository
+#### Клонирование репозитория
 ```bash
 git clone <repository-url>
 cd kubernetes-with-ansible
 ```
 
-### 3. Configure Inventory
+### 3. Настройка инвентаря
 
-Edit `inventory.yml` to match your environment:
+Отредактируйте `inventory.yml` в соответствии с вашей средой:
 
 ```yaml
 all:
@@ -114,13 +114,13 @@ all:
         kube-worker-02:
           ansible_host: 10.0.2.7
           ansible_user: your_username
-        # Add more worker nodes as needed
+        # Добавьте больше рабочих узлов по необходимости
 ```
 
-### 4. Customize Configuration (Optional)
+### 4. Настройка конфигурации (необязательно)
 
-#### Modify MetalLB IP Pool
-Edit `metallb/defaults/main.yml`:
+#### Изменение пула IP-адресов MetalLB
+Отредактируйте `metallb/defaults/main.yml`:
 
 ```yaml
 metallb_ip_pool:
@@ -129,8 +129,8 @@ metallb_ip_pool:
     name: "first-pool"
 ```
 
-#### Modify Demo Application
-Edit `demo_app/defaults/main.yml`:
+#### Изменение демонстрационного приложения
+Отредактируйте `demo_app/defaults/main.yml`:
 
 ```yaml
 demo_app:
@@ -141,254 +141,254 @@ demo_app:
   port: 8080
 ```
 
-### 5. Deploy Cluster
+### 5. Развертывание кластера
 
-#### Full Deployment
+#### Полное развертывание
 ```bash
-# Deploy complete cluster with MetalLB
+# Развернуть полный кластер с MetalLB
 ansible-playbook -i inventory.yml site.yml
 ```
 
-#### Step-by-Step Deployment
+#### Пошаговое развертывание
 ```bash
-# Deploy master node only
+# Развернуть только мастер-узел
 ansible-playbook -i inventory.yml site.yml --limit master_nodes
 
-# Deploy network (Flannel)
+# Развернуть сеть (Flannel)
 ansible-playbook -i inventory.yml site.yml --tags kubernetes_network
 
-# Deploy worker nodes
+# Развернуть рабочие узлы
 ansible-playbook -i inventory.yml site.yml --limit worker_nodes
 
-# Deploy MetalLB
+# Развернуть MetalLB
 ansible-playbook -i inventory.yml site.yml --tags metallb
 
-# Deploy demo application
+# Развернуть демонстрационное приложение
 ansible-playbook -i inventory.yml site.yml --tags demo_app
 ```
 
-### 6. Verify Deployment
+### 6. Проверка развертывания
 
-#### Check Cluster Status
+#### Проверка состояния кластера
 ```bash
-# SSH to master node
+# SSH к мастер-узлу
 ssh user@10.0.2.5
 
-# Check cluster nodes
+# Проверить узлы кластера
 kubectl get nodes
 
-# Check all pods
+# Проверить все поды
 kubectl get pods --all-namespaces
 ```
 
-#### Check MetalLB Installation
+#### Проверка установки MetalLB
 ```bash
-# Check MetalLB namespace
+# Проверить пространство имен MetalLB
 kubectl get namespace metallb-system
 
-# Check MetalLB pods
+# Проверить поды MetalLB
 kubectl get pods -n metallb-system
 
-# Check IP address pools
+# Проверить пулы IP-адресов
 kubectl get ipaddresspools -n metallb-system
 
-# Check L2 advertisements
+# Проверить L2 объявления
 kubectl get l2advertisements -n metallb-system
 ```
 
-#### Test LoadBalancer Functionality
+#### Тестирование функциональности LoadBalancer
 ```bash
-# Run test script
+# Запустить тестовый скрипт
 ./scripts/test-metallb.sh
 
-# Or manually test
+# Или протестировать вручную
 kubectl get service nginx-demo-service -n demo
 curl http://<EXTERNAL_IP>
 ```
 
-## Post-Deployment Configuration
+## Конфигурация после развертывания
 
-### 1. Configure kubectl on Control Node
+### 1. Настройка kubectl на управляющем узле
 
 ```bash
-# Copy kubeconfig from master
+# Скопировать kubeconfig с мастера
 scp user@10.0.2.5:/etc/kubernetes/admin.conf ~/.kube/config
 
-# Set permissions
+# Установить права доступа
 chmod 600 ~/.kube/config
 
-# Test connection
+# Протестировать подключение
 kubectl get nodes
 ```
 
-### 2. Install Additional Tools (Optional)
+### 2. Установка дополнительных инструментов (необязательно)
 
-#### Install Helm
+#### Установка Helm
 ```bash
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 ```
 
-#### Install kubectl
+#### Установка kubectl
 ```bash
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 chmod +x kubectl
 sudo mv kubectl /usr/local/bin/
 ```
 
-### 3. Configure Monitoring (Optional)
+### 3. Настройка мониторинга (необязательно)
 
-#### Install Prometheus Operator
+#### Установка Prometheus Operator
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm install prometheus prometheus-community/kube-prometheus-stack
 ```
 
-#### Install Grafana
+#### Установка Grafana
 ```bash
 helm repo add grafana https://grafana.github.io/helm-charts
 helm install grafana grafana/grafana
 ```
 
-## Troubleshooting
+## Устранение неполадок
 
-### Common Issues
+### Распространенные проблемы
 
-#### 1. Nodes Not Joining Cluster
+#### 1. Узлы не присоединяются к кластеру
 ```bash
-# Check join command on master
+# Проверить команду присоединения на мастере
 kubeadm token create --print-join-command
 
-# Check kubelet logs on worker
+# Проверить логи kubelet на рабочем узле
 sudo journalctl -u kubelet -f
 ```
 
-#### 2. MetalLB Not Assigning IPs
+#### 2. MetalLB не назначает IP-адреса
 ```bash
-# Check MetalLB logs
+# Проверить логи MetalLB
 kubectl logs -n metallb-system -l app=metallb -c controller
 kubectl logs -n metallb-system -l app=metallb -c speaker
 
-# Check IP pool configuration
+# Проверить конфигурацию пула IP-адресов
 kubectl get ipaddresspools -n metallb-system -o yaml
 ```
 
-#### 3. Network Connectivity Issues
+#### 3. Проблемы с сетевым подключением
 ```bash
-# Test connectivity between nodes
-ping 10.0.2.5  # from worker to master
-ping 10.0.2.6  # from master to worker
+# Протестировать подключение между узлами
+ping 10.0.2.5  # с рабочего узла на мастер
+ping 10.0.2.6  # с мастера на рабочий узел
 
-# Check Flannel pods
+# Проверить поды Flannel
 kubectl get pods -n kube-flannel
 ```
 
-### Debug Commands
+### Команды отладки
 
 ```bash
-# Check cluster events
+# Проверить события кластера
 kubectl get events --sort-by='.lastTimestamp'
 
-# Check node resources
+# Проверить ресурсы узла
 kubectl describe node <node-name>
 
-# Check pod details
+# Проверить детали пода
 kubectl describe pod <pod-name> -n <namespace>
 
-# Check service details
+# Проверить детали сервиса
 kubectl describe service <service-name> -n <namespace>
 ```
 
-## Maintenance
+## Обслуживание
 
-### Backup Configuration
+### Резервное копирование конфигурации
 
 ```bash
-# Backup cluster configuration
+# Резервное копирование конфигурации кластера
 kubectl get all --all-namespaces -o yaml > cluster-backup.yaml
 
-# Backup MetalLB configuration
+# Резервное копирование конфигурации MetalLB
 kubectl get ipaddresspools -n metallb-system -o yaml > metallb-ip-pools.yaml
 kubectl get l2advertisements -n metallb-system -o yaml > metallb-l2-adv.yaml
 ```
 
-### Update Cluster
+### Обновление кластера
 
 ```bash
-# Update MetalLB
+# Обновить MetalLB
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.12/config/manifests/metallb-native.yaml
 
-# Update Kubernetes
+# Обновить Kubernetes
 kubectl drain <node-name> --ignore-daemonsets
-# Update node
+# Обновить узел
 kubectl uncordon <node-name>
 ```
 
-### Scale Cluster
+### Масштабирование кластера
 
-#### Add Worker Node
-1. Create new VM with Ubuntu Server 24.04
-2. Add to inventory
-3. Run worker deployment:
+#### Добавление рабочего узла
+1. Создать новую ВМ с Ubuntu Server 24.04
+2. Добавить в инвентарь
+3. Запустить развертывание рабочего узла:
 ```bash
 ansible-playbook -i inventory.yml site.yml --limit new-worker-node
 ```
 
-#### Remove Worker Node
+#### Удаление рабочего узла
 ```bash
-# Drain node
+# Остановить узел
 kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data
 
-# Remove from cluster
+# Удалить из кластера
 kubectl delete node <node-name>
 ```
 
-## Security Considerations
+## Вопросы безопасности
 
-### 1. Network Security
-- Implement network policies
-- Use firewall rules
-- Monitor network traffic
+### 1. Сетевая безопасность
+- Реализовать сетевые политики
+- Использовать правила файрвола
+- Мониторить сетевой трафик
 
-### 2. Access Control
-- Use RBAC for user access
-- Implement service accounts
-- Regular security updates
+### 2. Контроль доступа
+- Использовать RBAC для доступа пользователей
+- Реализовать сервисные аккаунты
+- Регулярные обновления безопасности
 
-### 3. Monitoring
-- Monitor cluster resources
-- Set up alerting
-- Regular backups
+### 3. Мониторинг
+- Мониторить ресурсы кластера
+- Настроить оповещения
+- Регулярные резервные копии
 
-## Performance Optimization
+## Оптимизация производительности
 
-### 1. Resource Allocation
-- Monitor CPU and memory usage
-- Adjust resource limits
-- Optimize pod placement
+### 1. Распределение ресурсов
+- Мониторить использование ЦП и памяти
+- Настроить лимиты ресурсов
+- Оптимизировать размещение подов
 
-### 2. Network Optimization
-- Use appropriate CNI settings
-- Optimize MetalLB configuration
-- Monitor network latency
+### 2. Сетевая оптимизация
+- Использовать соответствующие настройки CNI
+- Оптимизировать конфигурацию MetalLB
+- Мониторить сетевую задержку
 
-### 3. Storage Optimization
-- Use appropriate storage classes
-- Monitor disk usage
-- Implement storage policies
+### 3. Оптимизация хранилища
+- Использовать соответствующие классы хранилища
+- Мониторить использование диска
+- Реализовать политики хранилища
 
-## Support and Resources
+## Поддержка и ресурсы
 
-### Documentation
-- [Kubernetes Documentation](https://kubernetes.io/docs/)
-- [MetalLB Documentation](https://metallb.universe.tf/)
-- [Ansible Documentation](https://docs.ansible.com/)
+### Документация
+- [Документация Kubernetes](https://kubernetes.io/docs/)
+- [Документация MetalLB](https://metallb.universe.tf/)
+- [Документация Ansible](https://docs.ansible.com/)
 
-### Community
+### Сообщество
 - [Kubernetes Slack](https://slack.k8s.io/)
 - [MetalLB GitHub](https://github.com/metallb/metallb)
-- [Ansible Community](https://docs.ansible.com/ansible/latest/community/)
+- [Сообщество Ansible](https://docs.ansible.com/ansible/latest/community/)
 
-### Monitoring and Logging
-- Set up centralized logging
-- Implement monitoring dashboards
-- Configure alerting rules
+### Мониторинг и логирование
+- Настроить централизованное логирование
+- Реализовать панели мониторинга
+- Настроить правила оповещений
