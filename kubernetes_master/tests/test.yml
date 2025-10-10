@@ -1,6 +1,0 @@
----
-- name: Test kubernetes_master role
-  hosts: localhost
-  remote_user: root
-  roles:
-    - kubernetes_master
