@@ -1,5 +1,5 @@
 ---
-# tasks file for kubernetes_master
+# tasks file for kubernetes_worker
 
 # 1. Install required packages first & clean keyrings
 - name: Install required packages
