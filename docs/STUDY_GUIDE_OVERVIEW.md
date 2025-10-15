@@ -9,17 +9,17 @@
 ## 📚 Структура учебных материалов
 
 ### Основные файлы:
-- **[LEARNING_GUIDE.md](LEARNING_GUIDE.md)** - Главное учебное пособие
-- **[EXERCISES.md](EXERCISES.md)** - Практические упражнения
-- **[QUIZ.md](QUIZ.md)** - Контрольные вопросы и тесты
-- **[RESOURCES.md](RESOURCES.md)** - Дополнительные ресурсы
+- **[learning/LEARNING_GUIDE.md](learning/LEARNING_GUIDE.md)** - Главное учебное пособие
+- **[learning/EXERCISES.md](learning/EXERCISES.md)** - Практические упражнения
+- **[learning/QUIZ.md](learning/QUIZ.md)** - Контрольные вопросы и тесты
+- **[reference/RESOURCES.md](reference/RESOURCES.md)** - Дополнительные ресурсы
 
 ### Существующие материалы репозитория:
-- **[README.md](README.md)** - Обзор проекта
-- **[QUICK_START.md](QUICK_START.md)** - Быстрый старт
-- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Подробное руководство по развертыванию
-- **[METALLB_SETUP.md](METALLB_SETUP.md)** - Настройка MetalLB
-- **[k8s.md](k8s.md)** - Теоретические основы Kubernetes
+- **[../README.md](../README.md)** - Обзор проекта
+- **[getting-started/QUICK_START.md](getting-started/QUICK_START.md)** - Быстрый старт
+- **[deployment/DEPLOYMENT_GUIDE.md](deployment/DEPLOYMENT_GUIDE.md)** - Подробное руководство по развертыванию
+- **[components/metallb/METALLB_SETUP.md](components/metallb/METALLB_SETUP.md)** - Настройка MetalLB
+- **[theory/K8S.md](theory/K8S.md)** - Теоретические основы Kubernetes
 
 ---
 

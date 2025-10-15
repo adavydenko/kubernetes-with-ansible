@@ -90,7 +90,7 @@ test_connection() {
 
 # Основная функция
 main() {
-    local inventory_file="inventory.yml"
+    local inventory_file="playbooks/inventory.yml"
     local master_ip=""
     local master_user="ansible"
     local worker_ips=()
@@ -235,7 +235,7 @@ EOF
     print_status "SUCCESS" "Inventory файл готов к использованию!"
     print_status "INFO" "Следующие шаги:"
     print_status "INFO" "1. Проверьте настройки: ./scripts/validate-vm-setup.sh $inventory_file"
-    print_status "INFO" "2. Запустите развертывание: ansible-playbook -i $inventory_file site.yml"
+    print_status "INFO" "2. Запустите развертывание: ansible-playbook -i $inventory_file playbooks/site.yml"
 }
 
 # Запускаем основную функцию

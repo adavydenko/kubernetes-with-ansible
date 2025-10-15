@@ -212,7 +212,7 @@ kube_node_status_condition
 
 ## 📚 Дополнительная документация
 
-- [Подробное руководство](monitoring/README.md)
+- [Подробное руководство](../components/monitoring/MONITORING_SUMMARY.md)
 - [Тестовый скрипт](scripts/test-monitoring.sh)
 - [Prometheus Documentation](https://prometheus.io/docs/)
 - [Grafana Documentation](https://grafana.com/docs/)

@@ -105,9 +105,9 @@ curl http://10.0.2.240
 
 ## 📚 Подробная документация
 
-- [Полное руководство по VirtualBox](VIRTUALBOX_SETUP_GUIDE.md)
+- [Полное руководство по VirtualBox](../deployment/VIRTUALBOX_SETUP_GUIDE.md)
 - [Быстрый старт Kubernetes](QUICK_START.md)
-- [Руководство по развертыванию](DEPLOYMENT_GUIDE.md)
+- [Руководство по развертыванию](../deployment/DEPLOYMENT_GUIDE.md)
 
 ---
 

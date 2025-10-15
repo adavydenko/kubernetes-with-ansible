@@ -109,7 +109,7 @@ kubectl logs -n local-storage-system -l app=local-volume-discovery
 
 ## 📚 Дополнительная документация
 
-- [Подробное руководство](storage/README.md)
+- [Подробное руководство](../components/storage/LOCAL_STORAGE_SUMMARY.md)
 - [Примеры использования](examples/local-storage-example.yml)
 - [Тестовый скрипт](scripts/test-local-storage.sh)
 

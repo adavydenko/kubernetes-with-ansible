@@ -12,6 +12,9 @@ sudo apt update && sudo apt install ansible -y
 git clone <repository-url>
 cd kubernetes-with-ansible
 
+# Переход в директорию ansible
+cd ansible
+
 # Настройка SSH ключей
 ssh-keygen -t rsa -b 4096 -C "ansible@control"
 ssh-copy-id user@10.0.2.5  # master
@@ -21,7 +24,7 @@ ssh-copy-id user@10.0.2.7  # worker-02
 
 ### 2. Настройка inventory
 
-Отредактируйте `inventory.yml`:
+Отредактируйте `playbooks/inventory.yml`:
 
 ```yaml
 all:
@@ -45,7 +48,7 @@ all:
 
 ```bash
 # Полное развертывание кластера с MetalLB
-ansible-playbook -i inventory.yml site.yml
+ansible-playbook -i playbooks/inventory.yml playbooks/site.yml
 ```
 
 ### 4. Проверка результатов
@@ -115,8 +118,8 @@ ping <EXTERNAL_IP>
 
 ## 📚 Дополнительная документация
 
-- [Полное руководство по развертыванию](DEPLOYMENT_GUIDE.md)
-- [Настройка MetalLB](METALLB_SETUP.md)
+- [Полное руководство по развертыванию](../deployment/DEPLOYMENT_GUIDE.md)
+- [Настройка MetalLB](../components/metallb/METALLB_SETUP.md)
 - [Примеры использования](examples/metallb-examples.yml)
 
 ## 🎯 Следующие шаги

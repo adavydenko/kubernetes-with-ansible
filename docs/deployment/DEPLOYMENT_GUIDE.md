@@ -146,25 +146,25 @@ demo_app:
 #### Полное развертывание
 ```bash
 # Развернуть полный кластер с MetalLB
-ansible-playbook -i inventory.yml site.yml
+ansible-playbook -i playbooks/inventory.yml playbooks/site.yml
 ```
 
 #### Пошаговое развертывание
 ```bash
 # Развернуть только мастер-узел
-ansible-playbook -i inventory.yml site.yml --limit master_nodes
+ansible-playbook -i playbooks/inventory.yml playbooks/site.yml --limit master_nodes
 
 # Развернуть сеть (Flannel)
-ansible-playbook -i inventory.yml site.yml --tags kubernetes_network
+ansible-playbook -i playbooks/inventory.yml playbooks/site.yml --tags kubernetes_network
 
 # Развернуть рабочие узлы
-ansible-playbook -i inventory.yml site.yml --limit worker_nodes
+ansible-playbook -i playbooks/inventory.yml playbooks/site.yml --limit worker_nodes
 
 # Развернуть MetalLB
-ansible-playbook -i inventory.yml site.yml --tags metallb
+ansible-playbook -i playbooks/inventory.yml playbooks/site.yml --tags metallb
 
 # Развернуть демонстрационное приложение
-ansible-playbook -i inventory.yml site.yml --tags demo_app
+ansible-playbook -i playbooks/inventory.yml playbooks/site.yml --tags demo_app
 ```
 
 ### 6. Проверка развертывания
@@ -330,7 +330,7 @@ kubectl uncordon <node-name>
 2. Добавить в инвентарь
 3. Запустить развертывание рабочего узла:
 ```bash
-ansible-playbook -i inventory.yml site.yml --limit new-worker-node
+ansible-playbook -i playbooks/inventory.yml playbooks/site.yml --limit new-worker-node
 ```
 
 #### Удаление рабочего узла

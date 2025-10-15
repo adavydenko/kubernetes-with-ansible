@@ -744,9 +744,9 @@ VBoxManage snapshot kube-master restore "before-k8s-install"
    ```
 
 3. **Изучить дополнительные материалы:**
-   - [QUICK_START.md](QUICK_START.md) - Быстрый старт
+   - [QUICK_START.md](../getting-started/QUICK_START.md) - Быстрый старт
    - [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Подробное руководство
-   - [LEARNING_GUIDE.md](LEARNING_GUIDE.md) - Учебное пособие
+   - [LEARNING_GUIDE.md](../learning/LEARNING_GUIDE.md) - Учебное пособие
 
 ---
 
