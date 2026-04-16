@@ -4,6 +4,14 @@
 
 Скрипт собирает книгу `mdBook` из Markdown, используя Docker.
 
+### Если PowerShell блокирует запуск скрипта
+
+Запускайте через `Bypass`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\build-mdbook.ps1 -RebuildImage
+```
+
 ### Запуск
 
 Запускайте из **корня репозитория**:
@@ -27,4 +35,17 @@ cd c:\Projects\kubernetes-with-ansible
 Собранная HTML-книга попадает в:
 
 - `docs/book/`
+
+### PDF (Linux / WSL)
+
+После сборки HTML нужен [WeasyPrint](https://weasyprint.org/). Скрипт:
+
+```bash
+chmod +x scripts/build-mdbook-pdf.sh
+./scripts/build-mdbook-pdf.sh
+```
+
+Файл: `docs/dist/study-guide.pdf`.
+
+На Windows без WSL удобнее скачать PDF из артефакта GitHub Actions (workflow `mdBook PDF`).
 
