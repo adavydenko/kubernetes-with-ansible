@@ -40,6 +40,13 @@
 - **[Udemy Kubernetes Courses](https://www.udemy.com/topic/kubernetes/)** - Разнообразные курсы
 
 ### Сертификация
+
+Экзамены CNCF пересекаются по темам, но акценты разные: администрирование кластера, прикладная разработка под Kubernetes и безопасность. Схема ниже помогает сопоставить сертификации с блоками знаний и затем перейти по ссылкам на официальные программы.
+
+![Диаграмма 16: карта сертификаций Kubernetes](../diagram-assets/images/diagram-16-kubernetes-certifications-map.svg)
+
+[Исходник PlantUML](../diagram-assets/src/diagram-16-kubernetes-certifications-map.puml)
+
 - **[CKA (Certified Kubernetes Administrator)](https://www.cncf.io/certification/cka/)** - Администратор
 - **[CKAD (Certified Kubernetes Application Developer)](https://www.cncf.io/certification/ckad/)** - Разработчик
 - **[CKS (Certified Kubernetes Security Specialist)](https://www.cncf.io/certification/cks/)** - Безопасность

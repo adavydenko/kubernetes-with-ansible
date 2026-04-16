@@ -54,6 +54,22 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 - Использование ресурсов
 - События кластера
 
+## Схемы стека мониторинга
+
+Ниже — три взаимодополняющие схемы: **архитектура** (кто с кем связан), **поток данных** (от экспортеров до алертов) и **состав компонентов** (источники метрик, ядро, визуализация, уведомления). Их удобно читать вместе с разделом «Что мониторится» выше.
+
+![Диаграмма 9: архитектура мониторинга](../../diagram-assets/images/diagram-09-monitoring-architecture.svg)
+
+[Исходник PlantUML](../../diagram-assets/src/diagram-09-monitoring-architecture.puml)
+
+![Диаграмма 10: поток данных мониторинга](../../diagram-assets/images/diagram-10-monitoring-data-flow.svg)
+
+[Исходник PlantUML](../../diagram-assets/src/diagram-10-monitoring-data-flow.puml)
+
+![Диаграмма 11: компоненты мониторинга](../../diagram-assets/images/diagram-11-monitoring-components.svg)
+
+[Исходник PlantUML](../../diagram-assets/src/diagram-11-monitoring-components.puml)
+
 ### Приложения:
 - Доступность сервисов
 - Время ответа

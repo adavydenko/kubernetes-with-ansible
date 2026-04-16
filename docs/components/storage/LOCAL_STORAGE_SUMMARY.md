@@ -48,6 +48,18 @@ kubectl port-forward svc/storage-demo 8080:80
 - **Привязка к узлу** - поды должны быть на том же узле
 - **Потеря данных** - при выходе узла из строя
 
+## Схемы: архитектура и жизненный цикл тома
+
+Ниже две схемы для связи текста выше с объектами Kubernetes: как **Local Storage Provisioner**, **StorageClass**, **PV/PVC** и поды согласуются на узлах, и как проходит **жизненный цикл PersistentVolume** от выделения до освобождения.
+
+![Диаграмма 7: архитектура локального хранилища](../../diagram-assets/images/diagram-07-storage-architecture.svg)
+
+[Исходник PlantUML](../../diagram-assets/src/diagram-07-storage-architecture.puml)
+
+![Диаграмма 8: жизненный цикл PersistentVolume](../../diagram-assets/images/diagram-08-persistentvolume-lifecycle.svg)
+
+[Исходник PlantUML](../../diagram-assets/src/diagram-08-persistentvolume-lifecycle.puml)
+
 ## 🎯 Рекомендации для кластера из 10 машин
 
 1. **Начните с Local Storage** - идеально для начала

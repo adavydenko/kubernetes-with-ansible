@@ -37,7 +37,19 @@
 - Порты Kubernetes (6443, 2379-2380, 10250-10252) должны быть доступны
 - MetalLB требует L2 сетевого подключения
 
+Ниже — обобщённая схема: клиент, маршрутизация, pod-сеть (CNI), сервисы и выдача внешнего IP через MetalLB в режиме L2. Её удобно сопоставлять с требованиями к сети и пулу адресов выше.
+
+![Диаграмма 5: сетевая архитектура кластера (CNI, сервисы, MetalLB)](../diagram-assets/images/diagram-05-network-architecture.svg)
+
+[Исходник PlantUML](../diagram-assets/src/diagram-05-network-architecture.puml)
+
 ## Пошаговое развертывание
+
+Ниже приведены пошаговые действия на узлах и команды Ansible. Общий сквозной процесс — от подготовки окружения до демо-приложения — показан на схеме: он помогает не потерять порядок при пошаговом запуске тегов и `--limit`.
+
+![Диаграмма 4: процесс развёртывания кластера](../diagram-assets/images/diagram-04-cluster-deployment-process.svg)
+
+[Исходник PlantUML](../diagram-assets/src/diagram-04-cluster-deployment-process.puml)
 
 ### 1. Подготовка виртуальных машин
 
@@ -250,6 +262,12 @@ helm install grafana grafana/grafana
 ```
 
 ## Устранение неполадок
+
+При сбоях полезно идти от симптома к узкому месту: узлы, сеть, сервисы, MetalLB, мониторинг. Схема ниже — ориентир по шагам диагностики (детальные команды — в подразделах ниже).
+
+![Диаграмма 13: процесс диагностики и устранения неполадок](../diagram-assets/images/diagram-13-troubleshooting-process.svg)
+
+[Исходник PlantUML](../diagram-assets/src/diagram-13-troubleshooting-process.puml)
 
 ### Распространенные проблемы
 

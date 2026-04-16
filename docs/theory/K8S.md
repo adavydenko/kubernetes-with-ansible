@@ -66,7 +66,19 @@ Kubernetes работает внутри кластера, который сос
 - **kube-proxy**: Сетевой прокси, обеспечивающий сетевое взаимодействие
 - **Container Runtime**: Среда выполнения контейнеров (Docker, containerd и т.д.)
 
+Ниже — схема взаимодействия компонентов плоскости управления (control plane) и рабочих узлов (data plane). Её удобно сопоставлять с перечислением выше.
+
+![Архитектура Kubernetes: Control Plane и Data Plane](../diagram-assets/images/diagram-01-kubernetes-architecture.svg)
+
+[Исходник PlantUML (diagram-01)](../diagram-assets/src/diagram-01-kubernetes-architecture.puml)
+
 ### Основные объекты (абстракции) Kubernetes
+
+Дальше перечислены ключевые ресурсы API. Общую картину связей между ними (workloads, сеть, конфигурация, хранилище, RBAC) даёт следующая схема.
+
+![Иерархия и связи объектов Kubernetes](../diagram-assets/images/diagram-02-kubernetes-objects-hierarchy.svg)
+
+[Исходник PlantUML (diagram-02)](../diagram-assets/src/diagram-02-kubernetes-objects-hierarchy.puml)
 
 #### Pod
 Наименьшая единица в Kubernetes. Pod — это один или несколько контейнеров, которые совместно используют сеть и файловую систему.
@@ -90,6 +102,12 @@ spec:
 
 #### Service
 Определяет постоянную IP-адресацию и DNS для набора Pod'ов, обеспечивая балансировку нагрузки.
+
+На практике чаще всего используют три типа сервисов: **ClusterIP** (доступ только внутри кластера), **NodePort** (публикация на портах узлов) и **LoadBalancer** (внешний балансировщик; на «железе» без облака его роль часто берёт MetalLB). Схема ниже показывает типичные пути трафика.
+
+![Диаграмма 6: типы сервисов Kubernetes](../diagram-assets/images/diagram-06-kubernetes-service-types.svg)
+
+[Исходник PlantUML](../diagram-assets/src/diagram-06-kubernetes-service-types.puml)
 
 #### ReplicaSet
 Гарантирует запуск определенного количества идентичных Pod'ов.
