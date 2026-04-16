@@ -1,5 +1,20 @@
 # Учебное пособие по Kubernetes с Ansible
 
+> Версия: **1.0.0**  
+> Формат: веб-версия (mdBook) + PDF  
+> Репозиторий: [adavydenko/kubernetes-with-ansible](https://github.com/adavydenko/kubernetes-with-ansible)
+
+### Скачать PDF
+
+После успешной публикации книга доступна в виде PDF:
+
+- локально: `docs/dist/study-guide.pdf` (если вы запускали PDF‑сборку);
+- на GitHub Pages: ссылка вида `assets/study-guide.pdf` относительно корня книги.
+
+```markdown
+[📥 Скачать PDF-версию учебника](assets/study-guide.pdf)
+```
+
 ## Титульная страница
 
 **Подзаголовок:** практическое руководство по развертыванию, эксплуатации и развитию учебного Kubernetes-кластера.  

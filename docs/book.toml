@@ -2,4 +2,10 @@
 title = "Учебное пособие по Kubernetes с Ansible"
 language = "ru"
 src = "."
+version = "0.8.0"
+
+[output.html]
+git-repository-url = "https://github.com/adavydenko/kubernetes-with-ansible"
+git-repository-icon = "fa-github"
+
 

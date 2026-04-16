@@ -33,6 +33,11 @@ jobs:
           cd docs/book
           weasyprint print.html ../dist/study-guide.pdf
 
+      - name: Copy PDF into book assets for GitHub Pages
+        run: |
+          mkdir -p docs/book/assets
+          cp docs/dist/study-guide.pdf docs/book/assets/study-guide.pdf
+
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
         with:
