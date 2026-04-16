@@ -1,0 +1,5 @@
+[book]
+title = "Kubernetes with Ansible - Study Guide"
+language = "ru"
+src = "."
+
