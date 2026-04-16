@@ -1,0 +1,69 @@
+@startuml Network Architecture
+!define RECTANGLE class
+
+package "External Network" {
+  [Client] as CLIENT
+  [Router] as ROUTER
+}
+
+package "Kubernetes Cluster" {
+  package "Master Node" {
+    [kube-apiserver] as API
+    [Flannel] as FLANNEL_MASTER
+  }
+  
+  package "Worker Node 1" {
+    [Pod 1] as POD1
+    [Pod 2] as POD2
+    [kube-proxy] as KPROXY1
+    [Flannel] as FLANNEL_W1
+  }
+  
+  package "Worker Node 2" {
+    [Pod 3] as POD3
+    [Pod 4] as POD4
+    [kube-proxy] as KPROXY2
+    [Flannel] as FLANNEL_W2
+  }
+  
+  package "MetalLB" {
+    [Controller] as METALLB_CTRL
+    [Speaker 1] as SPEAKER1
+    [Speaker 2] as SPEAKER2
+  }
+}
+
+package "Service Layer" {
+  [Service LoadBalancer] as SVC_LB
+  [Service ClusterIP] as SVC_CLUSTER
+}
+
+' Connections
+CLIENT --> ROUTER
+ROUTER --> SVC_LB : "External IP\n10.0.2.240"
+SVC_LB --> POD1 : "traffic"
+SVC_LB --> POD2 : "traffic"
+SVC_LB --> POD3 : "traffic"
+SVC_LB --> POD4 : "traffic"
+
+SVC_CLUSTER --> POD1 : "internal"
+SVC_CLUSTER --> POD2 : "internal"
+
+POD1 <--> FLANNEL_W1 : "pod network"
+POD2 <--> FLANNEL_W1 : "pod network"
+POD3 <--> FLANNEL_W2 : "pod network"
+POD4 <--> FLANNEL_W2 : "pod network"
+
+FLANNEL_W1 <--> FLANNEL_W2 : "overlay network"
+FLANNEL_W1 <--> FLANNEL_MASTER : "overlay network"
+FLANNEL_W2 <--> FLANNEL_MASTER : "overlay network"
+
+METALLB_CTRL --> SVC_LB : "assigns IP"
+SPEAKER1 --> ROUTER : "ARP/NDP"
+SPEAKER2 --> ROUTER : "ARP/NDP"
+
+note right of SVC_LB : "LoadBalancer Service\nExternal IP: 10.0.2.240"
+note right of SVC_CLUSTER : "ClusterIP Service\nInternal IP: 10.96.x.x"
+note right of FLANNEL_W1 : "Pod Network\n10.244.x.x"
+note right of METALLB_CTRL : "IP Pool Manager\n10.0.2.240-10.0.2.250"
+@enduml

@@ -1,0 +1,31 @@
+@startuml PV Lifecycle
+!define RECTANGLE class
+
+start
+
+:Создание StorageClass;
+note right: Определяет тип хранилища
+
+:Создание PersistentVolume;
+note right: Вручную или через provisioner
+
+:Создание PersistentVolumeClaim;
+note right: Запрос на хранилище
+
+:Binding PVC к PV;
+note right: Автоматическое связывание
+
+:Монтирование в Pod;
+note right: Использование хранилища
+
+:Удаление Pod;
+note right: Хранилище остается
+
+:Удаление PVC;
+note right: Освобождение PV
+
+:Удаление PV;
+note right: Очистка ресурсов
+
+stop
+@enduml

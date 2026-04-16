@@ -1,0 +1,50 @@
+@startuml Monitoring Components
+!define RECTANGLE class
+
+package "Data Sources" {
+  [Node Exporter] as NE
+  [NVIDIA/DCGM Exporter] as NVE
+  [kube-state-metrics] as KSM
+  [Custom Applications] as APP
+}
+
+package "Core Monitoring" {
+  [Prometheus Server] as PROM
+  [Prometheus Config] as PROM_CFG
+  [Alert Rules] as RULES
+}
+
+package "Visualization" {
+  [Grafana Server] as GRAFANA
+  [Grafana Dashboards] as DASH
+  [Grafana Datasources] as DS
+}
+
+package "Alerting" {
+  [Alertmanager] as ALERT
+  [Notification Channels] as NOTIF
+}
+
+' Connections
+NE --> PROM : "system metrics"
+NVE --> PROM : "GPU metrics"
+KSM --> PROM : "k8s metrics"
+APP --> PROM : "app metrics"
+
+PROM_CFG --> PROM : "configuration"
+RULES --> PROM : "alerting rules"
+
+PROM --> DS : "metrics data"
+DS --> GRAFANA : "data source"
+DASH --> GRAFANA : "visualization"
+
+PROM --> ALERT : "alerts"
+ALERT --> NOTIF : "notifications"
+
+note right of NE : "System metrics\nCPU, Memory, Disk, Network"
+note right of NVE : "GPU metrics\nUtilization, Memory, Temperature"
+note right of KSM : "Kubernetes metrics\nPods, Services, Nodes"
+note right of PROM : "Time-series database\nData collection & storage"
+note right of GRAFANA : "Visualization platform\nDashboards & graphs"
+note right of ALERT : "Alert management\nNotification routing"
+@enduml

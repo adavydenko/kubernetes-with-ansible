@@ -1,0 +1,53 @@
+@startuml Storage Architecture
+!define RECTANGLE class
+
+package "Kubernetes Cluster" {
+  package "Worker Node 1" {
+    [Pod A] as PODA
+    [Local Storage] as LOCAL_STORAGE1
+    [Local Storage Provisioner] as LSP1
+  }
+  
+  package "Worker Node 2" {
+    [Pod B] as PODB
+    [Local Storage] as LOCAL_STORAGE2
+    [Local Storage Provisioner] as LSP2
+  }
+}
+
+package "Storage Layer" {
+  [StorageClass] as SC
+  [PersistentVolume] as PV1
+  [PersistentVolume] as PV2
+  [PersistentVolumeClaim] as PVC
+}
+
+package "API Server" {
+  [kube-apiserver] as API
+}
+
+' Connections
+PODA --> PVC : "mounts"
+PODB --> PVC : "mounts"
+PVC --> PV1 : "binds to"
+PVC --> PV2 : "binds to"
+PV1 --> LOCAL_STORAGE1 : "uses"
+PV2 --> LOCAL_STORAGE2 : "uses"
+
+SC --> PV1 : "provisions"
+SC --> PV2 : "provisions"
+LSP1 --> LOCAL_STORAGE1 : "manages"
+LSP2 --> LOCAL_STORAGE2 : "manages"
+
+API --> SC : "defines"
+API --> PV1 : "tracks"
+API --> PV2 : "tracks"
+API --> PVC : "tracks"
+
+note right of SC : "StorageClass: local-storage\nprovisioner: kubernetes.io/no-provisioner"
+note right of PV1 : "PersistentVolume\nnodeAffinity: node1"
+note right of PV2 : "PersistentVolume\nnodeAffinity: node2"
+note right of PVC : "PersistentVolumeClaim\nstorageClassName: local-storage"
+note right of LOCAL_STORAGE1 : "/mnt/disk1\nNode 1 storage"
+note right of LOCAL_STORAGE2 : "/mnt/disk2\nNode 2 storage"
+@enduml

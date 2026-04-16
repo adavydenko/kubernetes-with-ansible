@@ -35,6 +35,28 @@ kubernetes-with-ansible/
 └── README.md                         # Этот файл
 ```
 
+## Учебное пособие (mdBook)
+
+Исходники книги лежат в [`docs/`](docs/): [`docs/book.toml`](docs/book.toml), [`docs/SUMMARY.md`](docs/SUMMARY.md), контент в подкаталогах.
+
+### Локальная сборка HTML (Docker)
+
+Из корня репозитория:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\build-mdbook.ps1 -RebuildImage
+```
+
+Результат: `docs/book/` (откройте `docs/book/index.html` в браузере).
+
+### Публикация на GitHub Pages
+
+Workflow [`.github/workflows/mdbook.yml`](.github/workflows/mdbook.yml) собирает книгу и публикует сайт при пуше в `main`. В настройках репозитория включите **Pages** с источником **GitHub Actions**.
+
+### PDF
+
+Workflow [`.github/workflows/mdbook-pdf.yml`](.github/workflows/mdbook-pdf.yml) запускается при пуше в `main` и вручную (**Actions → mdBook PDF → Run workflow**). Он собирает `study-guide.pdf` из `docs/book/print.html` и прикладывает артефакт **study-guide-pdf** к прогону (вкладка Actions → выбранный run → Artifacts).
+
 ## 🚀 Быстрый старт
 
 ### 1. Подготовка окружения

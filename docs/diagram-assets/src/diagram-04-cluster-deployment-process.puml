@@ -1,0 +1,34 @@
+@startuml Cluster Deployment Process
+!define RECTANGLE class
+
+start
+
+:Подготовка окружения;
+note right: SSH ключи, inventory.yml
+
+:Развертывание Master;
+note right: containerd, kubeadm, kubelet
+
+:Инициализация кластера;
+note right: kubeadm init
+
+:Установка CNI (Flannel);
+note right: Сетевая связность
+
+:Присоединение Workers;
+note right: kubeadm join
+
+:Установка MetalLB;
+note right: Балансировщик нагрузки
+
+:Настройка хранилища;
+note right: Local Storage Provisioner
+
+:Развертывание мониторинга;
+note right: Prometheus + Grafana
+
+:Тестовое приложение;
+note right: Демо nginx
+
+stop
+@enduml

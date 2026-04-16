@@ -1,4 +1,4 @@
-# Учебное пособие: Kubernetes кластер с Ansible, MetalLB, Local Storage и Monitoring
+# Учебное пособие: кластер Kubernetes с Ansible, MetalLB, локальным хранилищем и мониторингом
 
 ## Введение и цели обучения
 К концу этого пособия вы:
@@ -26,6 +26,15 @@
 7) Развертывание приложений и публикация сервисов (практика)
 8) Эксплуатация: диагностика, безопасность, обновления (теория + практика)
 
+### 🧭 Как проходить каждый модуль
+Используйте единый цикл обучения для всех тем:
+1) **Теория**: изучите ключевые понятия и диаграммы в текущем разделе.
+2) **Практика**: выполните лабораторные шаги и команды.
+3) **Проверка**: закрепите материал через [упражнения](EXERCISES.md), [тесты](QUIZ.md) и [чек-листы прогресса](PROGRESS_CHECKLISTS.md).
+
+### 🖼 Визуализация в контенте
+Ключевые диаграммы вынесены в отдельные исходники и одновременно вставлены прямо в содержание этого пособия как изображения с ссылками на исходный PlantUML.
+
 ### 📋 Отслеживание прогресса
 Для эффективного изучения используйте [чек-листы самооценки](PROGRESS_CHECKLISTS.md), которые помогут:
 - Отслеживать прогресс по каждому разделу
@@ -38,7 +47,7 @@
 ## Теоретическая база
 ### Основы Kubernetes (обзор)
 - Kubernetes — система оркестрации контейнеров для автоматизации развертывания, масштабирования и управления приложениями.
-- Архитектура (подробно см. `k8s.md`):
+- Архитектура (подробно см. [теоретическую главу](../theory/K8S.md)):
   - Control Plane: `kube-apiserver`, `etcd`, `kube-scheduler`, `kube-controller-manager`.
   - Data Plane: узлы с `kubelet`, `kube-proxy`, контейнерным рантаймом (containerd).
 - Ключевые объекты:
@@ -49,132 +58,7 @@
   - Декларативное описание желаемого состояния (YAML)
   - Контроллеры приводят текущее состояние к желаемому
 
-**Диаграмма 1** ниже показывает архитектуру Kubernetes с разделением на Control Plane и Data Plane, а также взаимодействие между компонентами.
-
-#### Архитектура Kubernetes
-```plantuml
-@startuml Kubernetes Architecture
-!define RECTANGLE class
-
-package "Control Plane" {
-  [kube-apiserver] as API
-  [etcd] as ETCD
-  [kube-scheduler] as SCHED
-  [kube-controller-manager] as CTRL
-}
-
-package "Data Plane" {
-  package "Worker Node 1" {
-    [kubelet] as KL1
-    [kube-proxy] as KP1
-    [containerd] as CR1
-    [Pod 1] as P1
-    [Pod 2] as P2
-  }
-  
-  package "Worker Node 2" {
-    [kubelet] as KL2
-    [kube-proxy] as KP2
-    [containerd] as CR2
-    [Pod 3] as P3
-    [Pod 4] as P4
-  }
-}
-
-' Connections
-API <--> ETCD : "хранит состояние"
-API <--> SCHED : "планирование"
-API <--> CTRL : "контроллеры"
-API <--> KL1 : "TLS"
-API <--> KL2 : "TLS"
-KL1 <--> CR1 : "управляет"
-KL2 <--> CR2 : "управляет"
-CR1 <--> P1 : "запускает"
-CR1 <--> P2 : "запускает"
-CR2 <--> P3 : "запускает"
-CR2 <--> P4 : "запускает"
-KP1 <--> P1 : "сеть"
-KP1 <--> P2 : "сеть"
-KP2 <--> P3 : "сеть"
-KP2 <--> P4 : "сеть"
-
-note right of API : "Единственная точка входа\nдля всех операций"
-note right of ETCD : "Распределенная БД\nсостояния кластера"
-note right of SCHED : "Планировщик подов\nпо узлам"
-note right of CTRL : "Контроллеры для\nприведения к желаемому\nсостоянию"
-@enduml
-```
-
-#### Иерархия объектов Kubernetes
-```plantuml
-@startuml Kubernetes Objects Hierarchy
-!define RECTANGLE class
-
-package "Workloads" {
-  [Pod] as POD
-  [Deployment] as DEPLOY
-  [StatefulSet] as STS
-  [DaemonSet] as DS
-  [Job] as JOB
-  [CronJob] as CJOB
-}
-
-package "Network" {
-  [Service] as SVC
-  [Ingress] as ING
-  [NetworkPolicy] as NP
-}
-
-package "Configuration" {
-  [ConfigMap] as CM
-  [Secret] as SEC
-}
-
-package "Storage" {
-  [PersistentVolume] as PV
-  [PersistentVolumeClaim] as PVC
-  [StorageClass] as SC
-}
-
-package "RBAC" {
-  [ServiceAccount] as SA
-  [Role] as ROLE
-  [ClusterRole] as CROLE
-  [RoleBinding] as RB
-  [ClusterRoleBinding] as CRB
-}
-
-' Relationships
-DEPLOY --> POD : "управляет"
-STS --> POD : "управляет"
-DS --> POD : "управляет"
-JOB --> POD : "управляет"
-CJOB --> JOB : "управляет"
-
-SVC --> POD : "обнаруживает"
-ING --> SVC : "маршрутизирует"
-NP --> POD : "контролирует"
-
-POD --> CM : "использует"
-POD --> SEC : "использует"
-
-PVC --> PV : "запрашивает"
-SC --> PV : "создает"
-
-SA --> POD : "аутентифицирует"
-ROLE --> RB : "определяет права"
-CROLE --> CRB : "определяет права"
-RB --> SA : "привязывает"
-CRB --> SA : "привязывает"
-
-note right of POD : "Базовая единица\nразвертывания"
-note right of SVC : "Сетевой доступ\nк подам"
-note right of PVC : "Запрос на\nхранилище"
-note right of SA : "Учетная запись\nдля подов"
-@enduml
-```
-
-**Диаграмма 2** демонстрирует иерархию объектов Kubernetes и их взаимосвязи, показывая как различные ресурсы взаимодействуют друг с другом.
+Развёрнутое описание архитектуры кластера, плоскостей управления и данных, а также **схемы «архитектура» и «объекты»** вставлены там, где этот материал излагается цельным текстом — в теоретической главе [Kubernetes (K8s): полное руководство](../theory/K8S.md): разделы [«Архитектура Kubernetes»](../theory/K8S.md#Архитектура-kubernetes) и [«Основные объекты (абстракции) Kubernetes»](../theory/K8S.md#Основные-объекты-абстракции-kubernetes).
 
 ### Ansible и роли репозитория
 - Ansible — средство автоматизации для идемпотентных изменений на удаленных хостах.
@@ -190,93 +74,16 @@ note right of SA : "Учетная запись\nдля подов"
 **Диаграмма 3** иллюстрирует структуру Ansible ролей и их зависимости, показывая как роли связаны между собой и выполняются в определенном порядке.
 
 #### Структура Ansible ролей
-```plantuml
-@startuml Ansible Roles Structure
-!define RECTANGLE class
+![Диаграмма 3: Структура Ansible ролей](../diagram-assets/images/diagram-03-ansible-roles-structure.svg)
 
-package "Ansible Playbook" {
-  [site.yml] as SITE
-}
-
-package "Core Kubernetes" {
-  [kubernetes_master] as MASTER
-  [kubernetes_worker] as WORKER
-  [kubernetes_network] as NETWORK
-}
-
-package "Infrastructure" {
-  [metallb] as METALLB
-  [storage] as STORAGE
-  [monitoring] as MONITORING
-}
-
-package "Applications" {
-  [demo_app] as DEMO
-}
-
-' Dependencies
-SITE --> MASTER : "выполняет"
-SITE --> WORKER : "выполняет"
-SITE --> NETWORK : "выполняет"
-SITE --> METALLB : "выполняет"
-SITE --> STORAGE : "выполняет"
-SITE --> MONITORING : "выполняет"
-SITE --> DEMO : "выполняет"
-
-WORKER --> MASTER : "зависит от"
-NETWORK --> MASTER : "зависит от"
-METALLB --> NETWORK : "зависит от"
-DEMO --> METALLB : "зависит от"
-
-note right of MASTER : "Установка и настройка\ncontrol plane"
-note right of WORKER : "Подготовка worker узлов\nи присоединение к кластеру"
-note right of NETWORK : "Установка Flannel CNI"
-note right of METALLB : "Балансировщик нагрузки\nдля bare metal"
-note right of STORAGE : "Локальное хранилище"
-note right of MONITORING : "Prometheus + Grafana"
-note right of DEMO : "Тестовое приложение"
-@enduml
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-03-ansible-roles-structure.puml)
 
 **Диаграмма 4** отображает пошаговый процесс развертывания кластера от подготовки окружения до запуска тестового приложения.
 
 #### Процесс развертывания кластера
-```plantuml
-@startuml Cluster Deployment Process
-!define RECTANGLE class
+![Диаграмма 4: Процесс развертывания кластера](../diagram-assets/images/diagram-04-cluster-deployment-process.svg)
 
-start
-
-:Подготовка окружения;
-note right: SSH ключи, inventory.yml
-
-:Развертывание Master;
-note right: containerd, kubeadm, kubelet
-
-:Инициализация кластера;
-note right: kubeadm init
-
-:Установка CNI (Flannel);
-note right: Сетевая связность
-
-:Присоединение Workers;
-note right: kubeadm join
-
-:Установка MetalLB;
-note right: Балансировщик нагрузки
-
-:Настройка хранилища;
-note right: Local Storage Provisioner
-
-:Развертывание мониторинга;
-note right: Prometheus + Grafana
-
-:Тестовое приложение;
-note right: Демо nginx
-
-stop
-@enduml
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-04-cluster-deployment-process.puml)
 
 ### Сети в Kubernetes, Flannel и MetalLB
 - CNI-плагин Flannel создает pod-сеть и маршрутизацию между узлами.
@@ -288,135 +95,14 @@ stop
 **Диаграмма 5** показывает полную сетевую архитектуру кластера, включая взаимодействие между Flannel, MetalLB и внешними клиентами.
 
 #### Сетевая архитектура
-```plantuml
-@startuml Network Architecture
-!define RECTANGLE class
+![Диаграмма 5: Сетевая архитектура](../diagram-assets/images/diagram-05-network-architecture.svg)
 
-package "External Network" {
-  [Client] as CLIENT
-  [Router] as ROUTER
-}
-
-package "Kubernetes Cluster" {
-  package "Master Node" {
-    [kube-apiserver] as API
-    [Flannel] as FLANNEL_MASTER
-  }
-  
-  package "Worker Node 1" {
-    [Pod 1] as POD1
-    [Pod 2] as POD2
-    [kube-proxy] as KPROXY1
-    [Flannel] as FLANNEL_W1
-  }
-  
-  package "Worker Node 2" {
-    [Pod 3] as POD3
-    [Pod 4] as POD4
-    [kube-proxy] as KPROXY2
-    [Flannel] as FLANNEL_W2
-  }
-  
-  package "MetalLB" {
-    [Controller] as METALLB_CTRL
-    [Speaker 1] as SPEAKER1
-    [Speaker 2] as SPEAKER2
-  }
-}
-
-package "Service Layer" {
-  [Service LoadBalancer] as SVC_LB
-  [Service ClusterIP] as SVC_CLUSTER
-}
-
-' Connections
-CLIENT --> ROUTER
-ROUTER --> SVC_LB : "External IP\n10.0.2.240"
-SVC_LB --> POD1 : "traffic"
-SVC_LB --> POD2 : "traffic"
-SVC_LB --> POD3 : "traffic"
-SVC_LB --> POD4 : "traffic"
-
-SVC_CLUSTER --> POD1 : "internal"
-SVC_CLUSTER --> POD2 : "internal"
-
-POD1 <--> FLANNEL_W1 : "pod network"
-POD2 <--> FLANNEL_W1 : "pod network"
-POD3 <--> FLANNEL_W2 : "pod network"
-POD4 <--> FLANNEL_W2 : "pod network"
-
-FLANNEL_W1 <--> FLANNEL_W2 : "overlay network"
-FLANNEL_W1 <--> FLANNEL_MASTER : "overlay network"
-FLANNEL_W2 <--> FLANNEL_MASTER : "overlay network"
-
-METALLB_CTRL --> SVC_LB : "assigns IP"
-SPEAKER1 --> ROUTER : "ARP/NDP"
-SPEAKER2 --> ROUTER : "ARP/NDP"
-
-note right of SVC_LB : "LoadBalancer Service\nExternal IP: 10.0.2.240"
-note right of SVC_CLUSTER : "ClusterIP Service\nInternal IP: 10.96.x.x"
-note right of FLANNEL_W1 : "Pod Network\n10.244.x.x"
-note right of METALLB_CTRL : "IP Pool Manager\n10.0.2.240-10.0.2.250"
-@enduml
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-05-network-architecture.puml)
 
 #### Типы сервисов Kubernetes
-```plantuml
-@startuml Service Types
-!define RECTANGLE class
+![Диаграмма 6: Типы сервисов Kubernetes](../diagram-assets/images/diagram-06-kubernetes-service-types.svg)
 
-package "Kubernetes Cluster" {
-  package "Node 1" {
-    [Pod A] as PODA
-    [Pod B] as PODB
-  }
-  
-  package "Node 2" {
-    [Pod C] as PODC
-    [Pod D] as PODD
-  }
-}
-
-package "Service Layer" {
-  [ClusterIP Service] as CLUSTERIP
-  [NodePort Service] as NODEPORT
-  [LoadBalancer Service] as LOADBALANCER
-}
-
-package "External Access" {
-  [External Client] as EXT_CLIENT
-  [Node 1 IP] as NODE1_IP
-  [Node 2 IP] as NODE2_IP
-  [External IP] as EXT_IP
-}
-
-' ClusterIP
-CLUSTERIP --> PODA : "internal traffic"
-CLUSTERIP --> PODB : "internal traffic"
-CLUSTERIP --> PODC : "internal traffic"
-CLUSTERIP --> PODD : "internal traffic"
-
-' NodePort
-NODEPORT --> PODA : "internal traffic"
-NODEPORT --> PODB : "internal traffic"
-NODEPORT --> PODC : "internal traffic"
-NODEPORT --> PODD : "internal traffic"
-NODE1_IP --> NODEPORT : "NodePort 30000"
-NODE2_IP --> NODEPORT : "NodePort 30000"
-
-' LoadBalancer
-LOADBALANCER --> PODA : "internal traffic"
-LOADBALANCER --> PODB : "internal traffic"
-LOADBALANCER --> PODC : "internal traffic"
-LOADBALANCER --> PODD : "internal traffic"
-EXT_IP --> LOADBALANCER : "External IP"
-EXT_CLIENT --> EXT_IP : "HTTP/HTTPS"
-
-note right of CLUSTERIP : "ClusterIP: 10.96.x.x\nТолько внутри кластера"
-note right of NODEPORT : "NodePort: 30000\nДоступ через любой узел"
-note right of LOADBALANCER : "External IP: 10.0.2.240\nДоступ извне"
-@enduml
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-06-kubernetes-service-types.puml)
 
 **Диаграмма 6** демонстрирует различные типы сервисов Kubernetes и способы доступа к приложениям из внешней сети.
 
@@ -427,96 +113,14 @@ note right of LOADBALANCER : "External IP: 10.0.2.240\nДоступ извне"
 **Диаграмма 7** иллюстрирует архитектуру локального хранилища и взаимодействие между компонентами системы хранения.
 
 #### Архитектура хранилища
-```plantuml
-@startuml Storage Architecture
-!define RECTANGLE class
+![Диаграмма 7: Архитектура хранилища](../diagram-assets/images/diagram-07-storage-architecture.svg)
 
-package "Kubernetes Cluster" {
-  package "Worker Node 1" {
-    [Pod A] as PODA
-    [Local Storage] as LOCAL_STORAGE1
-    [Local Storage Provisioner] as LSP1
-  }
-  
-  package "Worker Node 2" {
-    [Pod B] as PODB
-    [Local Storage] as LOCAL_STORAGE2
-    [Local Storage Provisioner] as LSP2
-  }
-}
-
-package "Storage Layer" {
-  [StorageClass] as SC
-  [PersistentVolume] as PV1
-  [PersistentVolume] as PV2
-  [PersistentVolumeClaim] as PVC
-}
-
-package "API Server" {
-  [kube-apiserver] as API
-}
-
-' Connections
-PODA --> PVC : "mounts"
-PODB --> PVC : "mounts"
-PVC --> PV1 : "binds to"
-PVC --> PV2 : "binds to"
-PV1 --> LOCAL_STORAGE1 : "uses"
-PV2 --> LOCAL_STORAGE2 : "uses"
-
-SC --> PV1 : "provisions"
-SC --> PV2 : "provisions"
-LSP1 --> LOCAL_STORAGE1 : "manages"
-LSP2 --> LOCAL_STORAGE2 : "manages"
-
-API --> SC : "defines"
-API --> PV1 : "tracks"
-API --> PV2 : "tracks"
-API --> PVC : "tracks"
-
-note right of SC : "StorageClass: local-storage\nprovisioner: kubernetes.io/no-provisioner"
-note right of PV1 : "PersistentVolume\nnodeAffinity: node1"
-note right of PV2 : "PersistentVolume\nnodeAffinity: node2"
-note right of PVC : "PersistentVolumeClaim\nstorageClassName: local-storage"
-note right of LOCAL_STORAGE1 : "/mnt/disk1\nNode 1 storage"
-note right of LOCAL_STORAGE2 : "/mnt/disk2\nNode 2 storage"
-@enduml
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-07-storage-architecture.puml)
 
 #### Жизненный цикл PersistentVolume
-```plantuml
-@startuml PV Lifecycle
-!define RECTANGLE class
+![Диаграмма 8: Жизненный цикл PersistentVolume](../diagram-assets/images/diagram-08-persistentvolume-lifecycle.svg)
 
-start
-
-:Создание StorageClass;
-note right: Определяет тип хранилища
-
-:Создание PersistentVolume;
-note right: Вручную или через provisioner
-
-:Создание PersistentVolumeClaim;
-note right: Запрос на хранилище
-
-:Binding PVC к PV;
-note right: Автоматическое связывание
-
-:Монтирование в Pod;
-note right: Использование хранилища
-
-:Удаление Pod;
-note right: Хранилище остается
-
-:Удаление PVC;
-note right: Освобождение PV
-
-:Удаление PV;
-note right: Очистка ресурсов
-
-stop
-@enduml
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-08-persistentvolume-lifecycle.puml)
 
 **Диаграмма 8** показывает жизненный цикл PersistentVolume от создания до удаления, включая все этапы управления хранилищем.
 
@@ -527,185 +131,32 @@ stop
 **Диаграмма 9** отображает архитектуру системы мониторинга с компонентами Prometheus, Grafana и различными экспортерами метрик.
 
 #### Архитектура мониторинга
-```plantuml
-@startuml Monitoring Architecture
-!define RECTANGLE class
+![Диаграмма 9: Архитектура мониторинга](../diagram-assets/images/diagram-09-monitoring-architecture.svg)
 
-package "Kubernetes Cluster" {
-  package "Worker Node 1" {
-    [Node Exporter] as NE1
-    [NVIDIA Exporter] as NVE1
-    [Pod A] as PODA
-  }
-  
-  package "Worker Node 2" {
-    [Node Exporter] as NE2
-    [NVIDIA Exporter] as NVE2
-    [Pod B] as PODB
-  }
-  
-  package "Master Node" {
-    [Node Exporter] as NE3
-  }
-}
-
-package "Monitoring Stack" {
-  [Prometheus] as PROM
-  [Grafana] as GRAFANA
-  [Alertmanager] as ALERT
-}
-
-package "External Access" {
-  [Admin User] as ADMIN
-  [Web Browser] as BROWSER
-}
-
-' Data Collection
-NE1 --> PROM : "node metrics"
-NE2 --> PROM : "node metrics"
-NE3 --> PROM : "node metrics"
-NVE1 --> PROM : "GPU metrics"
-NVE2 --> PROM : "GPU metrics"
-PODA --> PROM : "application metrics"
-PODB --> PROM : "application metrics"
-
-' Visualization
-PROM --> GRAFANA : "metrics data"
-GRAFANA --> BROWSER : "dashboards"
-ADMIN --> BROWSER : "accesses"
-
-' Alerts
-PROM --> ALERT : "alert rules"
-ALERT --> ADMIN : "notifications"
-
-note right of PROM : "Time-series database\nMetrics collection"
-note right of GRAFANA : "Visualization platform\nDashboards"
-note right of ALERT : "Alert management\nNotifications"
-note right of NE1 : "System metrics\nCPU, Memory, Disk"
-note right of NVE1 : "GPU metrics\nUtilization, Memory"
-@enduml
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-09-monitoring-architecture.puml)
 
 #### Поток данных мониторинга
-```plantuml
-@startuml Monitoring Data Flow
-!define RECTANGLE class
+![Диаграмма 10: Поток данных мониторинга](../diagram-assets/images/diagram-10-monitoring-data-flow.svg)
 
-start
-
-:Сбор метрик;
-note right: Node Exporter, NVIDIA Exporter
-
-:Отправка в Prometheus;
-note right: HTTP scrape endpoints
-
-:Хранение в TSDB;
-note right: Time-series database
-
-:Обработка правил;
-note right: Recording rules, Alerting rules
-
-:Визуализация в Grafana;
-note right: Dashboards, graphs
-
-:Алерты через Alertmanager;
-note right: Email, Slack, PagerDuty
-
-stop
-@enduml
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-10-monitoring-data-flow.puml)
 
 **Диаграмма 10** показывает поток данных в системе мониторинга от сбора метрик до генерации алертов.
 
 **Диаграмма 11** детализирует компоненты мониторинга и их взаимосвязи, включая источники данных и каналы уведомлений.
 
 #### Компоненты мониторинга
-```plantuml
-@startuml Monitoring Components
-!define RECTANGLE class
+![Диаграмма 11: Компоненты мониторинга](../diagram-assets/images/diagram-11-monitoring-components.svg)
 
-package "Data Sources" {
-  [Node Exporter] as NE
-  [NVIDIA/DCGM Exporter] as NVE
-  [kube-state-metrics] as KSM
-  [Custom Applications] as APP
-}
-
-package "Core Monitoring" {
-  [Prometheus Server] as PROM
-  [Prometheus Config] as PROM_CFG
-  [Alert Rules] as RULES
-}
-
-package "Visualization" {
-  [Grafana Server] as GRAFANA
-  [Grafana Dashboards] as DASH
-  [Grafana Datasources] as DS
-}
-
-package "Alerting" {
-  [Alertmanager] as ALERT
-  [Notification Channels] as NOTIF
-}
-
-' Connections
-NE --> PROM : "system metrics"
-NVE --> PROM : "GPU metrics"
-KSM --> PROM : "k8s metrics"
-APP --> PROM : "app metrics"
-
-PROM_CFG --> PROM : "configuration"
-RULES --> PROM : "alerting rules"
-
-PROM --> DS : "metrics data"
-DS --> GRAFANA : "data source"
-DASH --> GRAFANA : "visualization"
-
-PROM --> ALERT : "alerts"
-ALERT --> NOTIF : "notifications"
-
-note right of NE : "System metrics\nCPU, Memory, Disk, Network"
-note right of NVE : "GPU metrics\nUtilization, Memory, Temperature"
-note right of KSM : "Kubernetes metrics\nPods, Services, Nodes"
-note right of PROM : "Time-series database\nData collection & storage"
-note right of GRAFANA : "Visualization platform\nDashboards & graphs"
-note right of ALERT : "Alert management\nNotification routing"
-@enduml
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-11-monitoring-components.puml)
 
 Теперь, когда мы изучили теоретические основы и архитектуру системы, переходим к практическим лабораторным работам. **Диаграмма 12** ниже показывает концептуальную схему всего кластера для общего понимания.
 
 ---
 
 ## Визуальная схема (концептуально)
-```mermaid
-flowchart LR
-  subgraph ControlPlane
-    APIServer[kube-apiserver]
-    Scheduler[kube-scheduler]
-    Controllers[kube-controller-manager]
-    Etcd[(etcd)]
-    APIServer --- Etcd
-  end
+![Диаграмма 12: Концептуальная схема кластера](../diagram-assets/images/diagram-12-cluster-conceptual-view.svg)
 
-  subgraph DataPlane
-    Worker1[Worker Node 1\n kubelet + kube-proxy + containerd]
-    Worker2[Worker Node 2\n kubelet + kube-proxy + containerd]
-  end
-
-  APIServer <-- TLS --> Worker1
-  APIServer <-- TLS --> Worker2
-
-  subgraph Networking
-    Flannel[Flannel CNI]
-    MetalLB[MetalLB L2]
-  end
-
-  Flannel --- Worker1
-  Flannel --- Worker2
-  MetalLB --- Worker1
-  MetalLB --- Worker2
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-12-cluster-conceptual-view.puml)
 
 ---
 
@@ -866,65 +317,14 @@ kubectl get svc my-app
 
 ---
 
-## Устранение неполадок (cheatsheet)
+## Устранение неполадок (шпаргалка)
 
 При возникновении проблем в кластере важно следовать систематическому подходу к диагностике. **Диаграмма 13** ниже показывает пошаговый алгоритм устранения неполадок.
 
 #### Процесс диагностики проблем
-```plantuml
-@startuml Troubleshooting Process
-!define RECTANGLE class
+![Диаграмма 13: Процесс диагностики проблем](../diagram-assets/images/diagram-13-troubleshooting-process.svg)
 
-start
-
-:Обнаружение проблемы;
-note right: Симптомы, ошибки
-
-:Проверка состояния кластера;
-note right: kubectl get nodes
-kubectl get pods --all-namespaces
-
-if (Узлы не Ready?) then (да)
-  :Диагностика узлов;
-  note right: journalctl -u kubelet
-  kubeadm token create
-else (нет)
-  :Проверка приложений;
-  note right: kubectl get events
-  kubectl describe pod
-endif
-
-if (Сеть не работает?) then (да)
-  :Диагностика сети;
-  note right: kubectl get pods -n kube-flannel
-  ping между узлами
-else (нет)
-  :Проверка сервисов;
-  note right: kubectl get svc
-  kubectl describe svc
-endif
-
-if (MetalLB не работает?) then (да)
-  :Диагностика MetalLB;
-  note right: kubectl logs -n metallb-system
-  kubectl get ipaddresspools
-else (нет)
-  :Проверка мониторинга;
-  note right: kubectl logs -n monitoring
-  kubectl port-forward
-endif
-
-:Применение решения;
-note right: Исправление конфигурации
-Перезапуск сервисов
-
-:Проверка результата;
-note right: Повторная проверка
-Валидация функциональности
-
-stop
-@enduml
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-13-troubleshooting-process.puml)
 
 #### Команды для диагностики
 - Узлы не присоединяются:
@@ -966,73 +366,9 @@ kubectl get svc -n monitoring
 Для успешной эксплуатации кластера важно следовать установленным принципам и практикам. **Диаграмма 14** ниже иллюстрирует взаимосвязи между различными аспектами безопасности, производительности и операционных практик.
 
 #### Принципы безопасности и производительности
-```plantuml
-@startuml Best Practices
-!define RECTANGLE class
+![Диаграмма 14: Принципы безопасности](../diagram-assets/images/diagram-14-security-principles.svg)
 
-package "Security" {
-  [RBAC - Least Privilege] as RBAC
-  [Network Policies] as NP
-  [Pod Security Standards] as PSS
-  [Privileged Containers] as PC
-}
-
-package "Performance" {
-  [Resource Requests/Limits] as RR
-  [HPA/VPA] as HPA
-  [QoS Classes] as QOS
-  [Node Affinity] as NA
-}
-
-package "Operations" {
-  [GitOps] as GITOPS
-  [Backup Strategy] as BACKUP
-  [Monitoring] as MON
-  [Updates] as UPD
-}
-
-package "Network" {
-  [IP Pool Management] as IP
-  [L2 Network Design] as L2
-  [Service Mesh] as SM
-}
-
-package "Storage" {
-  [Local Storage] as LS
-  [HA Storage] as HAS
-  [Backup Strategy] as STORAGE_BACKUP
-}
-
-' Security connections
-RBAC --> NP : "complements"
-NP --> PSS : "enforces"
-PSS --> PC : "restricts"
-
-' Performance connections
-RR --> HPA : "enables"
-HPA --> QOS : "affects"
-QOS --> NA : "influences"
-
-' Operations connections
-GITOPS --> BACKUP : "includes"
-BACKUP --> MON : "monitors"
-MON --> UPD : "validates"
-
-' Network connections
-IP --> L2 : "requires"
-L2 --> SM : "supports"
-
-' Storage connections
-LS --> HAS : "alternative to"
-HAS --> STORAGE_BACKUP : "requires"
-
-note right of RBAC : "Role-based access control\nMinimal privileges"
-note right of RR : "CPU/Memory requests\nand limits"
-note right of GITOPS : "Version control\nfor infrastructure"
-note right of IP : "MetalLB IP pools\noutside DHCP"
-note right of LS : "For labs and\nnon-critical workloads"
-@enduml
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-14-security-principles.puml)
 
 #### Чек-лист лучших практик
 - **Сеть и IP:**
@@ -1088,9 +424,9 @@ note right of LS : "For labs and\nnon-critical workloads"
 - kubeadm: [Инсталляция](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
 - Ansible: [Документация](https://docs.ansible.com/)
 - MetalLB: [Сайт](https://metallb.universe.tf/) | [Установка](https://metallb.universe.tf/installation/) | [Конфигурация](https://metallb.universe.tf/configuration/)
-- Prometheus: [Docs](https://prometheus.io/docs/)
-- Grafana: [Docs](https://grafana.com/docs/)
-- Network Policies: [K8s Docs](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
+- Prometheus: [Документация](https://prometheus.io/docs/)
+- Grafana: [Документация](https://grafana.com/docs/)
+- Network Policies: [Документация Kubernetes](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 
 ### 📋 Материалы для самооценки
 - **[PROGRESS_CHECKLISTS.md](PROGRESS_CHECKLISTS.md)** - Чек-листы прогресса для самооценки знаний и навыков
@@ -1100,10 +436,10 @@ note right of LS : "For labs and\nnon-critical workloads"
 - **[EXERCISES_6.3.md](EXERCISES_6.3.md)** - Расширенные упражнения по GitOps
 
 ### 📚 Материалы из репозитория
-- `DEPLOYMENT_GUIDE.md`, `QUICK_START.md`
-- `METALLB_SETUP.md`, `metal-lb.md`
-- `LOCAL_STORAGE_SUMMARY.md`, `QUICK_START_LOCAL_STORAGE.md`
-- `MONITORING_SUMMARY.md`, `QUICK_START_MONITORING.md`, `NVIDIA_MONITORING_SUMMARY.md`, `QUICK_START_NVIDIA_MONITORING.md`
+- [DEPLOYMENT_GUIDE.md](../deployment/DEPLOYMENT_GUIDE.md), [QUICK_START.md](../getting-started/QUICK_START.md)
+- [METALLB_SETUP.md](../components/metallb/METALLB_SETUP.md), [METAL-LB.md](../components/metallb/METAL-LB.md)
+- [LOCAL_STORAGE_SUMMARY.md](../components/storage/LOCAL_STORAGE_SUMMARY.md), [QUICK_START_LOCAL_STORAGE.md](../getting-started/QUICK_START_LOCAL_STORAGE.md)
+- [MONITORING_SUMMARY.md](../components/monitoring/MONITORING_SUMMARY.md), [QUICK_START_MONITORING.md](../getting-started/QUICK_START_MONITORING.md), [NVIDIA_MONITORING_SUMMARY.md](../components/monitoring/NVIDIA_MONITORING_SUMMARY.md), [QUICK_START_NVIDIA_MONITORING.md](../getting-started/QUICK_START_NVIDIA_MONITORING.md)
 - Примеры: `examples/` и тесты: `scripts/test-*.sh`
 
 ---
@@ -1132,89 +468,9 @@ note right of LS : "For labs and\nnon-critical workloads"
 После освоения базовых концепций Kubernetes вы можете углубиться в более продвинутые темы. **Диаграмма 15** ниже представляет карту расширенных технологий и их взаимосвязей для дальнейшего изучения.
 
 #### Карта расширенных технологий
-```plantuml
-@startuml Advanced Topics Map
-!define RECTANGLE class
+![Диаграмма 15: Карта расширенных технологий](../diagram-assets/images/diagram-15-advanced-topics-map.svg)
 
-package "Security & Access Control" {
-  [RBAC] as RBAC
-  [Pod Security Standards] as PSS
-  [Network Policies] as NP
-  [Admission Controllers] as AC
-}
-
-package "Scaling & Performance" {
-  [Horizontal Pod Autoscaler] as HPA
-  [Vertical Pod Autoscaler] as VPA
-  [Cluster Autoscaler] as CA
-  [Resource Quotas] as RQ
-}
-
-package "Configuration Management" {
-  [Helm Charts] as HELM
-  [Kustomize] as KUST
-  [GitOps - ArgoCD] as ARGOCD
-  [GitOps - Flux] as FLUX
-}
-
-package "Alternative Solutions" {
-  [Calico CNI] as CALICO
-  [Cilium CNI] as CILIUM
-  [Longhorn Storage] as LONGHORN
-  [Rook-Ceph Storage] as ROOK
-  [Thanos Monitoring] as THANOS
-}
-
-package "Advanced Networking" {
-  [Service Mesh - Istio] as ISTIO
-  [Service Mesh - Linkerd] as LINKERD
-  [Ingress Controllers] as INGRESS
-  [Load Balancing] as LB
-}
-
-package "Operators & Automation" {
-  [Custom Operators] as OPERATORS
-  [Operator SDK] as SDK
-  [Kubebuilder] as KB
-  [Custom Resources] as CR
-}
-
-' Security connections
-RBAC --> PSS : "enables"
-PSS --> NP : "complements"
-NP --> AC : "enforced by"
-
-' Scaling connections
-HPA --> VPA : "complements"
-VPA --> CA : "triggers"
-CA --> RQ : "respects"
-
-' Configuration connections
-HELM --> KUST : "alternative to"
-KUST --> ARGOCD : "used by"
-ARGOCD --> FLUX : "alternative to"
-
-' Alternative connections
-CALICO --> CILIUM : "alternative to"
-LONGHORN --> ROOK : "alternative to"
-ROOK --> THANOS : "storage for"
-
-' Networking connections
-ISTIO --> LINKERD : "alternative to"
-INGRESS --> LB : "provides"
-
-' Operators connections
-OPERATORS --> SDK : "built with"
-SDK --> KB : "based on"
-KB --> CR : "creates"
-
-note right of RBAC : "Role-based access control\nService accounts & roles"
-note right of HPA : "Automatic scaling\nbased on metrics"
-note right of HELM : "Package manager\nfor Kubernetes"
-note right of CALICO : "Advanced networking\nwith policy support"
-note right of OPERATORS : "Custom controllers\nfor applications"
-@enduml
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-15-advanced-topics-map.puml)
 
 ### Безопасность и RBAC
 После освоения базовых концепций изучите:
@@ -1283,75 +539,9 @@ kubectl run custom-exporter --image=busybox --command -- sh -c "while true; do e
 Для тех, кто планирует получить официальные сертификации Kubernetes, важно понимать структуру экзаменов и темы, которые они покрывают. **Диаграмма 16** ниже показывает карту сертификаций и их тематическое покрытие.
 
 #### Карта сертификаций Kubernetes
-```plantuml
-@startuml Kubernetes Certifications
-!define RECTANGLE class
+![Диаграмма 16: Карта сертификаций Kubernetes](../diagram-assets/images/diagram-16-kubernetes-certifications-map.svg)
 
-package "Kubernetes Certifications" {
-  [CKA] as CKA
-  [CKAD] as CKAD
-  [CKS] as CKS
-}
-
-package "CKA - Administrator" {
-  [Cluster Architecture] as CA
-  [Installation & Configuration] as IC
-  [Workloads & Scheduling] as WS
-  [Services & Networking] as SN
-  [Storage] as ST
-  [Troubleshooting] as TR
-}
-
-package "CKAD - Application Developer" {
-  [Core Concepts] as CC
-  [Configuration] as CF
-  [Multi-Container Pods] as MCP
-  [Observability] as OB
-  [Services & Networking] as SN2
-  [State Persistence] as SP
-}
-
-package "CKS - Security Specialist" {
-  [Cluster Setup] as CS
-  [Cluster Hardening] as CH
-  [System Hardening] as SH
-  [Minimize Microservice Vulnerabilities] as MMV
-  [Supply Chain Security] as SCS
-  [Monitoring, Logging & Runtime Security] as MLR
-}
-
-' CKA connections
-CKA --> CA : "covers"
-CKA --> IC : "covers"
-CKA --> WS : "covers"
-CKA --> SN : "covers"
-CKA --> ST : "covers"
-CKA --> TR : "covers"
-
-' CKAD connections
-CKAD --> CC : "covers"
-CKAD --> CF : "covers"
-CKAD --> MCP : "covers"
-CKAD --> OB : "covers"
-CKAD --> SN2 : "covers"
-CKAD --> SP : "covers"
-
-' CKS connections
-CKS --> CS : "covers"
-CKS --> CH : "covers"
-CKS --> SH : "covers"
-CKS --> MMV : "covers"
-CKS --> SCS : "covers"
-CKS --> MLR : "covers"
-
-note right of CKA : "Certified Kubernetes\nAdministrator"
-note right of CKAD : "Certified Kubernetes\nApplication Developer"
-note right of CKS : "Certified Kubernetes\nSecurity Specialist"
-note right of CA : "Control plane\nData plane\nETCD"
-note right of IC : "kubeadm\nkubelet\nkubectl"
-note right of TR : "Troubleshooting\nLogs\nEvents"
-@enduml
-```
+[Исходник PlantUML](../diagram-assets/src/diagram-16-kubernetes-certifications-map.puml)
 
 #### Тематическое покрытие сертификаций
 Этот материал покрывает многие темы для:
@@ -1397,8 +587,8 @@ note right of TR : "Troubleshooting\nLogs\nEvents"
 
 | № | Название | Расположение | Описание | Ключевые элементы |
 |---|----------|--------------|----------|-------------------|
-| 1 | Архитектура Kubernetes | Теоретическая база → Основы Kubernetes | Архитектура с Control Plane и Data Plane | kube-apiserver, etcd, kubelet, kube-proxy |
-| 2 | Иерархия объектов Kubernetes | Теоретическая база → Основы Kubernetes | Иерархия объектов и их взаимосвязи | Pod, Deployment, Service, ConfigMap, Secret |
+| 1 | Архитектура Kubernetes | [Теория → K8S.md → Архитектура](../theory/K8S.md#Архитектура-kubernetes) | Архитектура с Control Plane и Data Plane | kube-apiserver, etcd, kubelet, kube-proxy |
+| 2 | Иерархия объектов Kubernetes | [Теория → K8S.md → Объекты](../theory/K8S.md#Основные-объекты-абстракции-kubernetes) | Иерархия объектов и их взаимосвязи | Pod, Deployment, Service, ConfigMap, Secret |
 | 3 | Структура Ansible ролей | Теоретическая база → Ansible и роли | Структура ролей и зависимости | kubernetes_master, kubernetes_worker, metallb |
 | 4 | Процесс развертывания кластера | Теоретическая база → Ansible и роли | Пошаговый процесс развертывания | Подготовка, установка, настройка сети |
 | 5 | Сетевая архитектура | Теоретическая база → Сети | Полная сетевая архитектура кластера | Flannel, MetalLB, внешний доступ |

@@ -1,0 +1,62 @@
+@startuml Troubleshooting Process
+!define RECTANGLE class
+
+start
+
+:Обнаружение проблемы;
+note right: Симптомы, ошибки
+
+:Проверка состояния кластера;
+note right
+kubectl get nodes
+kubectl get pods --all-namespaces
+end note
+
+if (Узлы не Ready?) then (да)
+  :Диагностика узлов;
+  note right
+  journalctl -u kubelet
+  kubeadm token create
+  end note
+else (нет)
+  :Проверка приложений;
+  note right: kubectl get events
+  :kubectl describe pod;
+endif
+
+if (Сеть не работает?) then (да)
+  :Диагностика сети;
+  note right
+  kubectl get pods -n kube-flannel
+  ping между узлами
+  end note
+else (нет)
+  :Проверка сервисов;
+  note right: kubectl get svc
+  :kubectl describe svc;
+endif
+
+if (MetalLB не работает?) then (да)
+  :Диагностика MetalLB;
+  note right: kubectl logs -n metallb-system
+  :kubectl get ipaddresspools;
+else (нет)
+  :Проверка мониторинга;
+  note right: kubectl logs -n monitoring
+  :kubectl port-forward;
+endif
+
+:Применение решения;
+note right
+Исправление конфигурации
+Перезапуск сервисов
+end note
+
+:Проверка результата;
+note right
+Повторная проверка
+Валидация функциональности
+end note
+
+stop
+@enduml

@@ -1,0 +1,56 @@
+@startuml Monitoring Architecture
+!define RECTANGLE class
+
+package "Kubernetes Cluster" {
+  package "Worker Node 1" {
+    [Node Exporter] as NE1
+    [NVIDIA Exporter] as NVE1
+    [Pod A] as PODA
+  }
+  
+  package "Worker Node 2" {
+    [Node Exporter] as NE2
+    [NVIDIA Exporter] as NVE2
+    [Pod B] as PODB
+  }
+  
+  package "Master Node" {
+    [Node Exporter] as NE3
+  }
+}
+
+package "Monitoring Stack" {
+  [Prometheus] as PROM
+  [Grafana] as GRAFANA
+  [Alertmanager] as ALERT
+}
+
+package "External Access" {
+  [Admin User] as ADMIN
+  [Web Browser] as BROWSER
+}
+
+' Data Collection
+NE1 --> PROM : "node metrics"
+NE2 --> PROM : "node metrics"
+NE3 --> PROM : "node metrics"
+NVE1 --> PROM : "GPU metrics"
+NVE2 --> PROM : "GPU metrics"
+PODA --> PROM : "application metrics"
+PODB --> PROM : "application metrics"
+
+' Visualization
+PROM --> GRAFANA : "metrics data"
+GRAFANA --> BROWSER : "dashboards"
+ADMIN --> BROWSER : "accesses"
+
+' Alerts
+PROM --> ALERT : "alert rules"
+ALERT --> ADMIN : "notifications"
+
+note right of PROM : "Time-series database\nMetrics collection"
+note right of GRAFANA : "Visualization platform\nDashboards"
+note right of ALERT : "Alert management\nNotifications"
+note right of NE1 : "System metrics\nCPU, Memory, Disk"
+note right of NVE1 : "GPU metrics\nUtilization, Memory"
+@enduml

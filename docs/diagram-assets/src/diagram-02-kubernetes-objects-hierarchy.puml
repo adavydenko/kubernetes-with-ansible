@@ -1,0 +1,65 @@
+@startuml Kubernetes Objects Hierarchy
+!define RECTANGLE class
+
+package "Workloads" {
+  [Pod] as POD
+  [Deployment] as DEPLOY
+  [StatefulSet] as STS
+  [DaemonSet] as DS
+  [Job] as JOB
+  [CronJob] as CJOB
+}
+
+package "Network" {
+  [Service] as SVC
+  [Ingress] as ING
+  [NetworkPolicy] as NP
+}
+
+package "Configuration" {
+  [ConfigMap] as CM
+  [Secret] as SEC
+}
+
+package "Storage" {
+  [PersistentVolume] as PV
+  [PersistentVolumeClaim] as PVC
+  [StorageClass] as SC
+}
+
+package "RBAC" {
+  [ServiceAccount] as SA
+  [Role] as ROLE
+  [ClusterRole] as CROLE
+  [RoleBinding] as RB
+  [ClusterRoleBinding] as CRB
+}
+
+' Relationships
+DEPLOY --> POD : "управляет"
+STS --> POD : "управляет"
+DS --> POD : "управляет"
+JOB --> POD : "управляет"
+CJOB --> JOB : "управляет"
+
+SVC --> POD : "обнаруживает"
+ING --> SVC : "маршрутизирует"
+NP --> POD : "контролирует"
+
+POD --> CM : "использует"
+POD --> SEC : "использует"
+
+PVC --> PV : "запрашивает"
+SC --> PV : "создает"
+
+SA --> POD : "аутентифицирует"
+ROLE --> RB : "определяет права"
+CROLE --> CRB : "определяет права"
+RB --> SA : "привязывает"
+CRB --> SA : "привязывает"
+
+note right of POD : "Базовая единица\nразвертывания"
+note right of SVC : "Сетевой доступ\nк подам"
+note right of PVC : "Запрос на\nхранилище"
+note right of SA : "Учетная запись\nдля подов"
+@enduml

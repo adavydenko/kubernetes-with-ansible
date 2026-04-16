@@ -1,0 +1,30 @@
+@startuml Network Architecture
+!define RECTANGLE class
+
+package "Control Plane" {
+  RECTANGLE "kube-apiserver" as APIServer
+  RECTANGLE "kube-scheduler" as Scheduler
+  RECTANGLE "kube-controller-manager" as Controllers
+  RECTANGLE "etcd" as Etcd
+  APIServer --- Etcd
+}
+
+package "Data Plane" {
+  RECTANGLE "Worker Node 1\nkubelet + kube-proxy + containerd" as Worker1
+  RECTANGLE "Worker Node 2\nkubelet + kube-proxy + containerd" as Worker2
+}
+
+APIServer <--> Worker1 : TLS
+APIServer <--> Worker2 : TLS
+
+package "Networking" {
+  RECTANGLE "Flannel CNI" as Flannel
+  RECTANGLE "MetalLB L2" as MetalLB
+}
+
+Flannel --- Worker1
+Flannel --- Worker2
+MetalLB --- Worker1
+MetalLB --- Worker2
+
+@enduml

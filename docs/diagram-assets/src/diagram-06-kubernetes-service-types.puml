@@ -1,0 +1,54 @@
+@startuml Service Types
+!define RECTANGLE class
+
+package "Kubernetes Cluster" {
+  package "Node 1" {
+    [Pod A] as PODA
+    [Pod B] as PODB
+  }
+  
+  package "Node 2" {
+    [Pod C] as PODC
+    [Pod D] as PODD
+  }
+}
+
+package "Service Layer" {
+  [ClusterIP Service] as CLUSTERIP
+  [NodePort Service] as NODEPORT
+  [LoadBalancer Service] as LOADBALANCER
+}
+
+package "External Access" {
+  [External Client] as EXT_CLIENT
+  [Node 1 IP] as NODE1_IP
+  [Node 2 IP] as NODE2_IP
+  [External IP] as EXT_IP
+}
+
+' ClusterIP
+CLUSTERIP --> PODA : "internal traffic"
+CLUSTERIP --> PODB : "internal traffic"
+CLUSTERIP --> PODC : "internal traffic"
+CLUSTERIP --> PODD : "internal traffic"
+
+' NodePort
+NODEPORT --> PODA : "internal traffic"
+NODEPORT --> PODB : "internal traffic"
+NODEPORT --> PODC : "internal traffic"
+NODEPORT --> PODD : "internal traffic"
+NODE1_IP --> NODEPORT : "NodePort 30000"
+NODE2_IP --> NODEPORT : "NodePort 30000"
+
+' LoadBalancer
+LOADBALANCER --> PODA : "internal traffic"
+LOADBALANCER --> PODB : "internal traffic"
+LOADBALANCER --> PODC : "internal traffic"
+LOADBALANCER --> PODD : "internal traffic"
+EXT_IP --> LOADBALANCER : "External IP"
+EXT_CLIENT --> EXT_IP : "HTTP/HTTPS"
+
+note right of CLUSTERIP : "ClusterIP: 10.96.x.x\nТолько внутри кластера"
+note right of NODEPORT : "NodePort: 30000\nДоступ через любой узел"
+note right of LOADBALANCER : "External IP: 10.0.2.240\nДоступ извне"
+@enduml

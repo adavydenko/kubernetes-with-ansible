@@ -1,0 +1,67 @@
+@startuml Kubernetes Certifications
+!define RECTANGLE class
+
+package "Kubernetes Certifications" {
+  [CKA] as CKA
+  [CKAD] as CKAD
+  [CKS] as CKS
+}
+
+package "CKA - Administrator" {
+  [Cluster Architecture] as CA
+  [Installation & Configuration] as IC
+  [Workloads & Scheduling] as WS
+  [Services & Networking] as SN
+  [Storage] as ST
+  [Troubleshooting] as TR
+}
+
+package "CKAD - Application Developer" {
+  [Core Concepts] as CC
+  [Configuration] as CF
+  [Multi-Container Pods] as MCP
+  [Observability] as OB
+  [Services & Networking] as SN2
+  [State Persistence] as SP
+}
+
+package "CKS - Security Specialist" {
+  [Cluster Setup] as CS
+  [Cluster Hardening] as CH
+  [System Hardening] as SH
+  [Minimize Microservice Vulnerabilities] as MMV
+  [Supply Chain Security] as SCS
+  [Monitoring, Logging & Runtime Security] as MLR
+}
+
+' CKA connections
+CKA --> CA : "covers"
+CKA --> IC : "covers"
+CKA --> WS : "covers"
+CKA --> SN : "covers"
+CKA --> ST : "covers"
+CKA --> TR : "covers"
+
+' CKAD connections
+CKAD --> CC : "covers"
+CKAD --> CF : "covers"
+CKAD --> MCP : "covers"
+CKAD --> OB : "covers"
+CKAD --> SN2 : "covers"
+CKAD --> SP : "covers"
+
+' CKS connections
+CKS --> CS : "covers"
+CKS --> CH : "covers"
+CKS --> SH : "covers"
+CKS --> MMV : "covers"
+CKS --> SCS : "covers"
+CKS --> MLR : "covers"
+
+note right of CKA : "Certified Kubernetes\nAdministrator"
+note right of CKAD : "Certified Kubernetes\nApplication Developer"
+note right of CKS : "Certified Kubernetes\nSecurity Specialist"
+note right of CA : "Control plane\nData plane\nETCD"
+note right of IC : "kubeadm\nkubelet\nkubectl"
+note right of TR : "Troubleshooting\nLogs\nEvents"
+@enduml

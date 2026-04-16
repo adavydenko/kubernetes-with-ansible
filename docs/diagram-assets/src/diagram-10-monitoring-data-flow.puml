@@ -1,0 +1,25 @@
+@startuml Monitoring Data Flow
+!define RECTANGLE class
+
+start
+
+:Сбор метрик;
+note right: Node Exporter, NVIDIA Exporter
+
+:Отправка в Prometheus;
+note right: HTTP scrape endpoints
+
+:Хранение в TSDB;
+note right: Time-series database
+
+:Обработка правил;
+note right: Recording rules, Alerting rules
+
+:Визуализация в Grafana;
+note right: Dashboards, graphs
+
+:Алерты через Alertmanager;
+note right: Email, Slack, PagerDuty
+
+stop
+@enduml

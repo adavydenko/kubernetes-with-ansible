@@ -1,0 +1,45 @@
+@startuml Ansible Roles Structure
+!define RECTANGLE class
+
+package "Ansible Playbook" {
+  [site.yml] as SITE
+}
+
+package "Core Kubernetes" {
+  [kubernetes_master] as MASTER
+  [kubernetes_worker] as WORKER
+  [kubernetes_network] as NETWORK
+}
+
+package "Infrastructure" {
+  [metallb] as METALLB
+  [storage] as STORAGE
+  [monitoring] as MONITORING
+}
+
+package "Applications" {
+  [demo_app] as DEMO
+}
+
+' Dependencies
+SITE --> MASTER : "выполняет"
+SITE --> WORKER : "выполняет"
+SITE --> NETWORK : "выполняет"
+SITE --> METALLB : "выполняет"
+SITE --> STORAGE : "выполняет"
+SITE --> MONITORING : "выполняет"
+SITE --> DEMO : "выполняет"
+
+WORKER --> MASTER : "зависит от"
+NETWORK --> MASTER : "зависит от"
+METALLB --> NETWORK : "зависит от"
+DEMO --> METALLB : "зависит от"
+
+note right of MASTER : "Установка и настройка\ncontrol plane"
+note right of WORKER : "Подготовка worker узлов\nи присоединение к кластеру"
+note right of NETWORK : "Установка Flannel CNI"
+note right of METALLB : "Балансировщик нагрузки\nдля bare metal"
+note right of STORAGE : "Локальное хранилище"
+note right of MONITORING : "Prometheus + Grafana"
+note right of DEMO : "Тестовое приложение"
+@enduml

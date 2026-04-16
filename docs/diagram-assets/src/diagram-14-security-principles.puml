@@ -1,0 +1,65 @@
+@startuml Best Practices
+!define RECTANGLE class
+
+package "Security" {
+  [RBAC - Least Privilege] as RBAC
+  [Network Policies] as NP
+  [Pod Security Standards] as PSS
+  [Privileged Containers] as PC
+}
+
+package "Performance" {
+  [Resource Requests/Limits] as RR
+  [HPA/VPA] as HPA
+  [QoS Classes] as QOS
+  [Node Affinity] as NA
+}
+
+package "Operations" {
+  [GitOps] as GITOPS
+  [Backup Strategy] as BACKUP
+  [Monitoring] as MON
+  [Updates] as UPD
+}
+
+package "Network" {
+  [IP Pool Management] as IP
+  [L2 Network Design] as L2
+  [Service Mesh] as SM
+}
+
+package "Storage" {
+  [Local Storage] as LS
+  [HA Storage] as HAS
+  [Backup Strategy] as STORAGE_BACKUP
+}
+
+' Security connections
+RBAC --> NP : "complements"
+NP --> PSS : "enforces"
+PSS --> PC : "restricts"
+
+' Performance connections
+RR --> HPA : "enables"
+HPA --> QOS : "affects"
+QOS --> NA : "influences"
+
+' Operations connections
+GITOPS --> BACKUP : "includes"
+BACKUP --> MON : "monitors"
+MON --> UPD : "validates"
+
+' Network connections
+IP --> L2 : "requires"
+L2 --> SM : "supports"
+
+' Storage connections
+LS --> HAS : "alternative to"
+HAS --> STORAGE_BACKUP : "requires"
+
+note right of RBAC : "Role-based access control\nMinimal privileges"
+note right of RR : "CPU/Memory requests\nand limits"
+note right of GITOPS : "Version control\nfor infrastructure"
+note right of IP : "MetalLB IP pools\noutside DHCP"
+note right of LS : "For labs and\nnon-critical workloads"
+@enduml

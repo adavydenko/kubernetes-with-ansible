@@ -1,0 +1,81 @@
+@startuml Advanced Topics Map
+!define RECTANGLE class
+
+package "Security & Access Control" {
+  [RBAC] as RBAC
+  [Pod Security Standards] as PSS
+  [Network Policies] as NP
+  [Admission Controllers] as AC
+}
+
+package "Scaling & Performance" {
+  [Horizontal Pod Autoscaler] as HPA
+  [Vertical Pod Autoscaler] as VPA
+  [Cluster Autoscaler] as CA
+  [Resource Quotas] as RQ
+}
+
+package "Configuration Management" {
+  [Helm Charts] as HELM
+  [Kustomize] as KUST
+  [GitOps - ArgoCD] as ARGOCD
+  [GitOps - Flux] as FLUX
+}
+
+package "Alternative Solutions" {
+  [Calico CNI] as CALICO
+  [Cilium CNI] as CILIUM
+  [Longhorn Storage] as LONGHORN
+  [Rook-Ceph Storage] as ROOK
+  [Thanos Monitoring] as THANOS
+}
+
+package "Advanced Networking" {
+  [Service Mesh - Istio] as ISTIO
+  [Service Mesh - Linkerd] as LINKERD
+  [Ingress Controllers] as INGRESS
+  [Load Balancing] as LB
+}
+
+package "Operators & Automation" {
+  [Custom Operators] as OPERATORS
+  [Operator SDK] as SDK
+  [Kubebuilder] as KB
+  [Custom Resources] as CR
+}
+
+' Security connections
+RBAC --> PSS : "enables"
+PSS --> NP : "complements"
+NP --> AC : "enforced by"
+
+' Scaling connections
+HPA --> VPA : "complements"
+VPA --> CA : "triggers"
+CA --> RQ : "respects"
+
+' Configuration connections
+HELM --> KUST : "alternative to"
+KUST --> ARGOCD : "used by"
+ARGOCD --> FLUX : "alternative to"
+
+' Alternative connections
+CALICO --> CILIUM : "alternative to"
+LONGHORN --> ROOK : "alternative to"
+ROOK --> THANOS : "storage for"
+
+' Networking connections
+ISTIO --> LINKERD : "alternative to"
+INGRESS --> LB : "provides"
+
+' Operators connections
+OPERATORS --> SDK : "built with"
+SDK --> KB : "based on"
+KB --> CR : "creates"
+
+note right of RBAC : "Role-based access control\nService accounts & roles"
+note right of HPA : "Automatic scaling\nbased on metrics"
+note right of HELM : "Package manager\nfor Kubernetes"
+note right of CALICO : "Advanced networking\nwith policy support"
+note right of OPERATORS : "Custom controllers\nfor applications"
+@enduml

@@ -1,0 +1,50 @@
+@startuml Kubernetes Architecture
+!define RECTANGLE class
+
+package "Control Plane" {
+  [kube-apiserver] as API
+  [etcd] as ETCD
+  [kube-scheduler] as SCHED
+  [kube-controller-manager] as CTRL
+}
+
+package "Data Plane" {
+  package "Worker Node 1" {
+    [kubelet] as KL1
+    [kube-proxy] as KP1
+    [containerd] as CR1
+    [Pod 1] as P1
+    [Pod 2] as P2
+  }
+  
+  package "Worker Node 2" {
+    [kubelet] as KL2
+    [kube-proxy] as KP2
+    [containerd] as CR2
+    [Pod 3] as P3
+    [Pod 4] as P4
+  }
+}
+
+' Connections
+API <--> ETCD : "хранит состояние"
+API <--> SCHED : "планирование"
+API <--> CTRL : "контроллеры"
+API <--> KL1 : "TLS"
+API <--> KL2 : "TLS"
+KL1 <--> CR1 : "управляет"
+KL2 <--> CR2 : "управляет"
+CR1 <--> P1 : "запускает"
+CR1 <--> P2 : "запускает"
+CR2 <--> P3 : "запускает"
+CR2 <--> P4 : "запускает"
+KP1 <--> P1 : "сеть"
+KP1 <--> P2 : "сеть"
+KP2 <--> P3 : "сеть"
+KP2 <--> P4 : "сеть"
+
+note right of API : "Единственная точка входа\nдля всех операций"
+note right of ETCD : "Распределенная БД\nсостояния кластера"
+note right of SCHED : "Планировщик подов\nпо узлам"
+note right of CTRL : "Контроллеры для\nприведения к желаемому\nсостоянию"
+@enduml
