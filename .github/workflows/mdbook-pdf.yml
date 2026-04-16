@@ -2,8 +2,6 @@ name: mdBook PDF
 
 on:
   push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
@@ -11,6 +9,7 @@ permissions:
 
 jobs:
   pdf:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

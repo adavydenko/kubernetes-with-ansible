@@ -51,11 +51,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-mdbook.ps1 -RebuildImag
 
 ### Публикация на GitHub Pages
 
-Workflow [`.github/workflows/mdbook.yml`](.github/workflows/mdbook.yml) собирает книгу и публикует сайт при пуше в `main`. В настройках репозитория включите **Pages** с источником **GitHub Actions**.
+Workflow [`.github/workflows/mdbook.yml`](.github/workflows/mdbook.yml) собирает книгу на каждом push и PR; **публикация на GitHub Pages** выполняется только при push в **ветку по умолчанию** репозитория (например `main` или `master`). В настройках репозитория включите **Pages** с источником **GitHub Actions**.
 
 ### PDF
 
-Workflow [`.github/workflows/mdbook-pdf.yml`](.github/workflows/mdbook-pdf.yml) запускается при пуше в `main` и вручную (**Actions → mdBook PDF → Run workflow**). Он собирает `study-guide.pdf` из `docs/book/print.html` и прикладывает артефакт **study-guide-pdf** к прогону (вкладка Actions → выбранный run → Artifacts).
+Workflow [`.github/workflows/mdbook-pdf.yml`](.github/workflows/mdbook-pdf.yml) запускается при пуше в **ветку по умолчанию** и вручную (**Actions → mdBook PDF → Run workflow**). Он собирает `study-guide.pdf` из `docs/book/print.html` и прикладывает артефакт **study-guide-pdf** к прогону (вкладка Actions → выбранный run → Artifacts).
 
 ## 🚀 Быстрый старт
 
