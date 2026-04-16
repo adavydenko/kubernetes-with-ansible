@@ -35,8 +35,10 @@ jobs:
 
       - name: Copy PDF into book assets for GitHub Pages
         run: |
-          mkdir -p docs/book/assets
-          cp docs/dist/study-guide.pdf docs/book/assets/study-guide.pdf
+          # After docker build, docs/book is often owned by root; use sudo for writes.
+          sudo mkdir -p docs/book/assets
+          sudo cp docs/dist/study-guide.pdf docs/book/assets/study-guide.pdf
+          sudo chown "$(id -u):$(id -g)" docs/book/assets/study-guide.pdf
 
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4

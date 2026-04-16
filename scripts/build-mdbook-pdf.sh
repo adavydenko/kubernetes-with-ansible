@@ -19,4 +19,10 @@ mkdir -p docs/dist
   weasyprint print.html ../dist/study-guide.pdf
 )
 
+# After docker build, docs/book may be root-owned; use sudo for writes into it.
+sudo mkdir -p docs/book/assets
+sudo cp docs/dist/study-guide.pdf docs/book/assets/study-guide.pdf
+sudo chown "$(id -u):$(id -g)" docs/book/assets/study-guide.pdf
+
 echo "PDF written to docs/dist/study-guide.pdf"
+echo "Stable Pages path: docs/book/assets/study-guide.pdf"

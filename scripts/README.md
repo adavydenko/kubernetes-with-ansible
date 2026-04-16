@@ -47,5 +47,7 @@ chmod +x scripts/build-mdbook-pdf.sh
 
 Файл: `docs/dist/study-guide.pdf`.
 
+Скрипт также копирует PDF в `docs/book/assets/study-guide.pdf` (стабильный URL на GitHub Pages). После `docker run` каталог `docs/book` может принадлежать `root`, поэтому для копирования используется `sudo`.
+
 На Windows без WSL удобнее скачать PDF из артефакта GitHub Actions (workflow `mdBook PDF`).
 
