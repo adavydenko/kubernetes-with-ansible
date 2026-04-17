@@ -1,21 +1,39 @@
-name: doc-enhance-technical-markdown-en
-description: Transform technical Markdown files into expanded, more readable English-language versions while preserving technical accuracy and original meaning. Use when user wants to improve documentation readability in English, expand brief technical descriptions, or enrich technical content with context and explanations for English-speaking readers.
+---
+name: doc-enhance-technical-markdown
+description: Transform technical Markdown files into expanded, more readable versions while preserving technical accuracy and original meaning. Use when user wants to improve documentation readability, expand brief technical descriptions, or enrich technical content with context and explanations in a target language.
 ---
 
-# Enhance Technical Markdown (EN)
+# Enhance Technical Markdown
 
-Transform technical Markdown files into expanded, more readable versions with higher readability index while preserving technical accuracy and original meaning. **Output language: English.**
+Transform technical Markdown files into expanded, more readable versions with higher readability index while preserving technical accuracy and original meaning. **Output language: requested target language (for example English or Russian).**
 
-## When to Use
+## Primary intent
 
-- User wants to improve readability of technical documentation **in English**
-- Need to expand brief technical descriptions into detailed English explanations
+Expand and clarify technical markdown in place for better comprehension, while preserving structure and technical correctness.
+
+## Use when
+
+- User wants to improve readability of technical documentation in a specific language
+- Need to expand brief technical descriptions into clear, detailed explanations
 - User requests to enrich technical content with context
 - Documentation is too concise and needs more detail
 - User mentions "improve readability", "expand description", "enrich content", or "make more readable"
 - Technical documentation needs better explanations for non-experts
-- Converting brief technical notes into more comprehensive English documentation
-- When you need a textbook format (learning objectives, exercises, knowledge checks) — use `doc-adapt-technical-notes-to-textbook-en`
+- Converting brief technical notes into more comprehensive documentation
+- When you need a textbook format (learning objectives, exercises, knowledge checks) — use `doc-adapt-technical-notes-to-textbook`
+
+## Do NOT use when
+
+- The goal is to build a full educational textbook with exercises and assessments
+- The goal is to organize multiple files into a course path
+- The task is translation/localization between languages
+- The task is only formatting lists/tables without semantic expansion
+
+## Use other skills instead when
+
+- Use `doc-adapt-technical-notes-to-textbook` for student-facing textbook transformation
+- Use `edu-structure-learning-materials` for multi-file course sequencing
+- Use `doc-optimize-content-format` for presentation-only cleanup
 
 ## Instructions
 
@@ -158,7 +176,7 @@ Process the document:
 - ✅ Don't invent facts – only expand with known principles
 - ✅ Keep technical accuracy and correct terminology
 
-## Transformation Pattern (EN)
+## Transformation Pattern
 
 ### Pattern: Brief Description → Expanded Explanation
 
@@ -167,12 +185,12 @@ Process the document:
 **Feature Name**: Brief one-line description.
 ```
 
-**Output (expanded, English):**
+**Output (expanded):**
 ```markdown
 **Feature Name**: In real-world scenarios, [context about why this matters]. When [common situation], you cannot simply [naive approach], because this leads to [problem]. Instead, [proper approach] is used, which relies on [key concepts]. It is also important to consider [related considerations]. All of this is implemented through [mechanism], where [component] serves as [role].
 ```
 
-## Example Transformation (EN)
+## Example Transformation
 
 ### Before (Brief):
 
@@ -188,7 +206,7 @@ Process the document:
 **Health Checks**: Liveness and readiness probes monitor container health.
 ```
 
-### After (Expanded, English):
+### After (Expanded):
 
 ```markdown
 # Kubernetes Deployment
@@ -227,16 +245,16 @@ Before completing transformation:
 - [ ] Real-world context and examples added
 - [ ] No invented facts – only expanded with known principles
 - [ ] Technical accuracy maintained
-- [ ] Document is more readable and comprehensive for English readers
+- [ ] Document is more readable and comprehensive for target readers
 
-## Prompt Template for LLM (EN)
+## Prompt Template for LLM
 
 When transforming documents using an LLM, use this template:
 
 ```
 You are a technical editor and architect improving technical documentation for engineers and SRE teams.
 
-**Task:** Transform the provided Markdown file into a more detailed, understandable, and practical English version with improved readability, while maintaining technical accuracy and original meaning.
+**Task:** Transform the provided Markdown file into a more detailed, understandable, and practical version in the target language with improved readability, while maintaining technical accuracy and original meaning.
 
 **Requirements:**
 - Preserve the original Markdown structure: section order, headings, lists, tables, links, and anchors
@@ -248,7 +266,7 @@ You are a technical editor and architect improving technical documentation for e
 - Keep links, anchors, and relative paths valid; if you change a heading, update the corresponding anchor
 - Preserve original indentation and formatting; do not change tab/space style
 - Do not remove original points – expand and enrich them
-- Language: English, clear professional tone without slang or emojis
+- Language: Use the target language requested by the user, with a clear professional tone without slang or emojis
 
 **What to add:**
 - At the beginning – 2–4 sentence context/overview and, if appropriate, a short TL;DR

@@ -6,13 +6,30 @@ description: Design solutions by proposing multiple alternatives with clear trad
 
 Design solutions by researching and proposing multiple alternatives with clear advantages, limitations, and recommendations to help users make informed decisions.
 
-## When to Use
+## Primary intent
+
+Compare viable solution options and recommend one with explicit trade-offs under user constraints.
+
+## Use when
 
 - User asks "what should I use for X?" or "how to solve Y?"
 - Need to choose between multiple technologies or approaches
 - User has constraints that require evaluating options
 - Before implementing a solution that has alternatives
 - User mentions "alternatives", "options", "which one", or "compare"
+
+## Do NOT use when
+
+- The goal is auditing current infrastructure for missing components
+- The solution is already chosen and needs integration steps
+- The task is specific implementation of monitoring stack manifests
+- The task is a narrow optional-feature toggle inside an existing role
+
+## Use other skills instead when
+
+- Use `k8s-kubernetes-infrastructure-analysis` for gap/bottleneck audits
+- Use `k8s-kubernetes-component-integration` for dependency wiring and rollout
+- Use `k8s-monitoring-stack-setup` for end-to-end monitoring implementation
 
 ## Instructions
 

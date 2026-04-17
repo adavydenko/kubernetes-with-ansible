@@ -6,7 +6,11 @@ description: Systematically validate educational questions for quality, fairness
 
 Systematically validate educational questions using comprehensive validation frameworks, similar to unit testing in software development, to ensure quality, fairness, and effectiveness.
 
-## When to Use
+## Primary intent
+
+Assess and improve quality of an existing question set before release.
+
+## Use when
 
 - User requests validation of question sets
 - Before deploying questions to students
@@ -15,6 +19,19 @@ Systematically validate educational questions using comprehensive validation fra
 - Quality assurance of test materials
 - User mentions "validate questions", "test questions", "quality check", or "review questions"
 - After generating questions to ensure they meet standards
+
+## Do NOT use when
+
+- Questions do not exist yet and must be created first
+- The request is building a full learning roadmap
+- The request is writing practical labs instead of validating assessment items
+- The request is code/command syntax validation in docs
+
+## Use other skills instead when
+
+- Use `edu-educational-question-generator` to create new question banks
+- Use `edu-structure-learning-materials` for curriculum sequencing
+- Use `edu-validate-code-examples` for executable code validation in learning content
 
 ## Instructions
 

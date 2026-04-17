@@ -7,7 +7,11 @@ description: Analyze and clean up Ansible roles by removing redundant files, emp
 
 Analyze Ansible roles to identify and remove redundant files, empty directories, unused components, and fix inconsistencies while preserving all functional code.
 
-## When to Use
+## Primary intent
+
+Clean existing Ansible roles by removing unused scaffolding and inconsistencies without changing intended behavior.
+
+## Use when
 
 - User requests role cleanup or optimization
 - User mentions "избыточные файлы", "удалить неиспользуемые", "очистка роли"
@@ -15,6 +19,18 @@ Analyze Ansible roles to identify and remove redundant files, empty directories,
 - Before refactoring or reorganizing roles
 - When role has accumulated unused files over time
 - User wants to simplify role structure
+
+## Do NOT use when
+
+- You need to create a new role from scratch
+- The primary task is adding new component functionality
+- The task is project documentation restructuring
+- The task is cluster/infrastructure design rather than Ansible role hygiene
+
+## Use other skills instead when
+
+- Use `ansible-role-development` for new roles or feature expansion in existing roles
+- Use `doc-reorganize-project-structure` for documentation/repo file layout changes
 
 ## Instructions
 

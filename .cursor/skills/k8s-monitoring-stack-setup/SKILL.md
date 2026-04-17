@@ -6,13 +6,31 @@ description: Set up comprehensive monitoring stack for Kubernetes cluster with P
 
 Set up comprehensive monitoring stack for Kubernetes cluster including Prometheus for metrics collection, Grafana for visualization, Node Exporter for node metrics, and optional GPU monitoring.
 
-## When to Use
+## Primary intent
+
+Deploy and configure the monitoring/observability stack (Prometheus, Grafana, exporters) for Kubernetes clusters.
+
+## Use when
 
 - User requests monitoring setup
 - Need to track cluster health and performance
 - User mentions "monitoring", "metrics", "observability", or "dashboards"
 - After setting up storage (monitoring needs persistent storage)
 - Before deploying production workloads
+
+## Do NOT use when
+
+- The user needs broad infrastructure gap analysis first
+- The user needs option comparison across several monitoring approaches
+- The request is generic component integration not specific to observability stack
+- The request is only optional feature-flag mechanics
+
+## Use other skills instead when
+
+- Use `k8s-kubernetes-infrastructure-analysis` for readiness and gap discovery
+- Use `k8s-solution-design-with-alternatives` for monitoring technology comparison
+- Use `k8s-kubernetes-component-integration` when integrating a non-monitoring component
+- Use `k8s-optional-feature-implementation` for opt-in monitoring subfeatures
 
 ## Instructions
 

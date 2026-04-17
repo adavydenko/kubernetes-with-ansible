@@ -7,13 +7,30 @@ description: Create well-structured Ansible roles for Kubernetes components foll
 
 Create well-structured, maintainable Ansible roles for Kubernetes components following best practices for idempotency, modularity, and configurability.
 
-## When to Use
+## Primary intent
+
+Design and implement new Ansible role functionality for Kubernetes components.
+
+## Use when
 
 - Creating a new Ansible role for Kubernetes component
 - Extending existing role with new functionality
 - Refactoring or improving existing role
 - User requests Ansible automation for Kubernetes component
 - Need to standardize role structure across project
+
+## Do NOT use when
+
+- You only need to remove redundant/empty role files
+- The task is documentation-only updates
+- The task is deciding Kubernetes architecture alternatives without implementing roles
+- The task is validating translated docs or link integrity
+
+## Use other skills instead when
+
+- Use `ansible-role-cleanup` for redundancy cleanup and role hygiene
+- Use `k8s-solution-design-with-alternatives` for technology-option analysis
+- Use `qa-validate-and-fix-links` for documentation link fixes
 
 ## Instructions
 

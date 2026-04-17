@@ -6,13 +6,30 @@ description: Validate syntax and functionality of all code examples, commands, a
 
 Validate syntax and functionality of all code examples, commands, and YAML manifests to ensure they work correctly and are error-free.
 
-## When to Use
+## Primary intent
+
+Verify executable code/commands/manifests embedded in educational or technical content.
+
+## Use when
 
 - Creating documentation with code examples
 - Writing tutorials or guides
 - Adding commands to educational materials
 - User mentions "validate", "test", "check syntax", or "verify examples"
 - Before finalizing any content with executable code
+
+## Do NOT use when
+
+- The issue is broken markdown/file links only
+- The goal is generating an automated validation script from scratch
+- The task is validating educational question quality
+- The task is translation QA only
+
+## Use other skills instead when
+
+- Use `qa-validate-and-fix-links` for path/link integrity checks
+- Use `qa-validation-script-generator` when a reusable script is requested
+- Use `edu-educational-question-validator` for assessment-item quality validation
 
 ## Instructions
 

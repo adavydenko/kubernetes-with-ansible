@@ -6,13 +6,30 @@ description: Analyze existing Kubernetes infrastructure to identify gaps, bottle
 
 Analyze existing Kubernetes infrastructure to identify critical gaps, bottlenecks, dependencies, and missing components that could impact cluster operations.
 
-## When to Use
+## Primary intent
+
+Audit the current Kubernetes environment and produce prioritized gap findings before implementation decisions.
+
+## Use when
 
 - User requests infrastructure analysis or gap analysis
 - Before adding new components to the cluster
 - When planning cluster expansion or scaling
 - User mentions "bottlenecks", "missing components", "gaps", or "what's missing"
 - After initial cluster setup to verify completeness
+
+## Do NOT use when
+
+- The user already selected a solution and needs implementation steps
+- The user explicitly requests option comparison/trade-off design only
+- The task is only enabling an optional feature flag
+- The task is specifically full monitoring stack deployment instructions
+
+## Use other skills instead when
+
+- Use `k8s-solution-design-with-alternatives` to compare multiple candidate solutions
+- Use `k8s-kubernetes-component-integration` to wire a selected component into existing stack
+- Use `k8s-monitoring-stack-setup` for concrete monitoring stack implementation
 
 ## Instructions
 

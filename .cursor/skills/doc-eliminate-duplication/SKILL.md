@@ -6,13 +6,30 @@ description: Identify and eliminate duplicate information in project documentati
 
 Identify and remove duplicate information in project documentation, following the "Single Source of Truth" principle.
 
-## When to Use
+## Primary intent
+
+Remove duplicated documentation content while keeping exactly one canonical source for each concept.
+
+## Use when
 
 - User mentions duplicate information
 - Creating new documentation files
 - After reorganizing project structure
 - When consolidating documentation
 - User asks to "remove duplicates" or "consolidate docs"
+
+## Do NOT use when
+
+- You need to redesign module hierarchy or split docs by audience/topic
+- You are physically moving directories/files as the primary task
+- You are only improving readability/formatting inside one file
+- You are translating content
+
+## Use other skills instead when
+
+- Use `doc-technical-documentation-structure` for modular information architecture
+- Use `doc-reorganize-project-structure` for file-system-level moves and renames
+- Use `doc-optimize-content-format` for list/table/readability formatting changes
 
 ## Instructions
 

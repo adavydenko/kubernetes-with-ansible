@@ -1,12 +1,16 @@
 name: doc-i18n-create-terminology-glossary
-description: Create and maintain a terminology glossary for consistent translations across project documentation. Use when starting translation work, when terminology inconsistencies are found, or when user requests a glossary for technical terms.
+description: Create canonical terminology glossaries for technical documentation, including translation glossaries and reader-facing term references. Use when terminology must be standardized, extracted, or maintained across documents.
 ---
 
 # Create Terminology Glossary
 
 Create and maintain a comprehensive terminology glossary to ensure consistent translations across all project documentation.
 
-## When to Use
+## Primary intent
+
+Create a single canonical glossary source for technical terms, either for translation consistency or for reader-facing definitions.
+
+## Use when
 
 - Starting translation work on a project
 - Finding terminology inconsistencies in translations
@@ -14,7 +18,20 @@ Create and maintain a comprehensive terminology glossary to ensure consistent tr
 - Need to standardize technical term translations
 - Working with multiple documents that need consistent terminology
 - User mentions "glossary", "terminology", or "consistent terms"
-- When you need a reference glossary with definitions and examples only (no translation) — use `doc-i18n-glossary-generator`
+- Need extracted definitions/examples from technical docs for onboarding or reference
+
+## Do NOT use when
+
+- The task is translating full documentation text
+- The task is validating already-translated files
+- The task is only content formatting (tables/lists)
+- The task is file reorganization or link repair
+
+## Use other skills instead when
+
+- Use `doc-i18n-translate-technical-documentation` when translating documents end to end
+- Use `doc-i18n-validate-translated-documentation` when QA-checking translated output
+- Use `doc-enhance-technical-markdown` when expanding explanations without glossary extraction
 
 ## Instructions
 
@@ -165,6 +182,23 @@ Keep glossary updated:
 - Update based on project conventions
 - Review periodically for consistency
 
+### 8. Optional: Build Reader-Facing Reference Entries
+
+When the user asks for glossary definitions (not only translation mapping), enrich each term with:
+- Definition (1-2 concise lines)
+- Context (where the term appears)
+- Practical example
+- Related terms (cross-links)
+
+Suggested markdown entry format:
+```markdown
+**API Server (kube-apiserver)**
+- **Definition**: Central Kubernetes control-plane API endpoint.
+- **Context**: Cluster operations and control-plane requests.
+- **Example**: `kubectl` sends requests to API Server.
+- **Related**: [Control Plane](#control-plane), [etcd](#etcd)
+```
+
 ## Best Practices
 
 - ✅ One source of truth for terminology
@@ -235,7 +269,8 @@ Keep glossary updated:
 
 ## Related Skills
 
-- `doc-i18n-glossary-generator` - For reference glossaries with definitions and examples (no translation), use this skill
+- `doc-i18n-translate-technical-documentation` - Apply glossary consistently during translation
+- `doc-i18n-validate-translated-documentation` - Verify term consistency after translation
 
 ## References
 

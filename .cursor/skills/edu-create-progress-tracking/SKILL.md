@@ -6,13 +6,31 @@ description: Create comprehensive progress tracking systems with checklists, ass
 
 Create comprehensive progress tracking systems with checklists, assessment levels, recommendations, and personalization sections for self-evaluation.
 
-## When to Use
+## Primary intent
+
+Build learner progress assessment frameworks (checklists/levels/recommendations) for ongoing self-evaluation.
+
+## Use when
 
 - Creating educational materials or courses
 - Need self-assessment capabilities
 - User mentions "progress", "checklist", "tracking", or "self-evaluation"
 - Creating learning guides that need progress monitoring
 - Building training programs
+
+## Do NOT use when
+
+- The task is creating new practical labs/exercises
+- The task is generating exam/quiz questions
+- The task is validating existing question quality
+- The task is restructuring technical documentation files
+
+## Use other skills instead when
+
+- Use `edu-create-practical-exercises` for hands-on assignments
+- Use `edu-educational-question-generator` for question creation
+- Use `edu-educational-question-validator` for assessment QA
+- Use `edu-structure-learning-materials` for full learning-path organization
 
 ## Instructions
 

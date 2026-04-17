@@ -6,13 +6,30 @@ description: Implement optional features with feature flags and sensible default
 
 Implement optional features using feature flags with sensible defaults, making features easy to enable when needed but not interfering with basic functionality.
 
-## When to Use
+## Primary intent
+
+Implement opt-in capabilities with flags/defaults so baseline deployments remain stable.
+
+## Use when
 
 - Adding features not needed by all users
 - Supporting different configurations or use cases
 - Adding experimental or advanced features
 - Implementing GPU support, advanced monitoring, etc.
 - User requests feature that should be optional
+
+## Do NOT use when
+
+- The task is deciding between several architectural options
+- The task is full component integration with multiple dependencies
+- The task is cluster-wide gap analysis
+- The task is complete monitoring stack bootstrap
+
+## Use other skills instead when
+
+- Use `k8s-solution-design-with-alternatives` when option trade-offs are undecided
+- Use `k8s-kubernetes-component-integration` when adding a full component to cluster
+- Use `k8s-kubernetes-infrastructure-analysis` for pre-implementation audits
 
 ## Instructions
 

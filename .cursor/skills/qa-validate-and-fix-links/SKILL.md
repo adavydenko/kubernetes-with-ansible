@@ -6,13 +6,30 @@ description: Validate all file links in a project and automatically fix broken l
 
 Automatically find, validate, and fix all file links in a project to ensure documentation integrity.
 
-## When to Use
+## Primary intent
+
+Detect and repair broken file/document links after path changes or documentation edits.
+
+## Use when
 
 - After reorganizing project structure
 - When files have been moved
 - User reports broken links
 - Before finalizing documentation changes
 - When user mentions "broken links", "404", or "file not found"
+
+## Do NOT use when
+
+- You need to validate code syntax or command executability
+- You need to generate new validation bash scripts
+- You need full translation QA beyond link checks
+- You need to redesign documentation structure itself
+
+## Use other skills instead when
+
+- Use `edu-validate-code-examples` for executable example validation
+- Use `qa-validation-script-generator` to create automated health/config validation scripts
+- Use `doc-reorganize-project-structure` for actual file moves before fixing links
 
 ## Instructions
 

@@ -6,13 +6,30 @@ description: Translate technical documentation (Markdown, README, guides) while 
 
 Safely translate technical documentation from one language to another while preserving all code blocks, commands, file paths, and configuration syntax to ensure functionality remains intact.
 
-## When to Use
+## Primary intent
+
+Translate technical documentation content between languages while preserving executable/code-critical elements exactly.
+
+## Use when
 
 - User requests translation of technical documentation
 - Translating README files, deployment guides, or API documentation
 - Localizing project documentation (e.g., English to Russian)
 - User mentions "translate", "localize", or "convert to [language]"
 - Need to translate documentation while keeping code working
+
+## Do NOT use when
+
+- The task is only to create or maintain a terminology glossary
+- The task is only to validate an already translated document
+- The task is only structural formatting or deduplication
+- The task is educational restructuring into a course/textbook
+
+## Use other skills instead when
+
+- Use `doc-i18n-create-terminology-glossary` to build canonical term mapping before translation
+- Use `doc-i18n-validate-translated-documentation` after translation for QA checks
+- Use `doc-enhance-technical-markdown` for same-language readability enhancement
 
 ## Instructions
 

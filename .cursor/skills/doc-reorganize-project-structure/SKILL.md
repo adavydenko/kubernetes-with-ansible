@@ -6,13 +6,31 @@ description: Safely reorganize project structure while preserving all important 
 
 Safely reorganize project files and directories while preserving all important information, dependencies, and ensuring all links remain functional.
 
-## When to Use
+## Primary intent
+
+Physically move or rename files/directories across the project while preserving content integrity and working links.
+
+## Use when
 
 - User requests project reorganization or restructuring
 - Need to separate automation code from documentation
 - Organizing files into logical categories
 - Moving files to new directory structure
 - User mentions "organize", "restructure", "reorganize", or "move files"
+
+## Do NOT use when
+
+- You only need to split one oversized documentation file without broad file moves
+- You only need to clean duplicate text while keeping file layout unchanged
+- You only need table/list formatting improvements within the same file
+- You only need translation or glossary generation
+
+## Use other skills instead when
+
+- Use `doc-technical-documentation-structure` when the task is module design and logical doc decomposition
+- Use `doc-eliminate-duplication` when the task is single-source-of-truth cleanup
+- Use `doc-optimize-content-format` when the task is purely presentational formatting
+- Use `qa-validate-and-fix-links` after moves to automatically repair link targets
 
 ## Instructions
 
@@ -37,9 +55,18 @@ Before making any changes:
 - Plan the order of file movements
 - Identify which files belong to which category
 
-### 4. Preserve Important Information
+### 4. Preserve Important Information During Moves
 
-When updating files (especially README.md and key docs), follow the procedure from skill `doc-preserve-important-info`: checklist of important sections, compare before/after versions, restore from git if needed (`git show <commit>:<file>`).
+Before and after each major move, keep this checklist:
+- [ ] Architecture/Overview
+- [ ] System requirements and prerequisites
+- [ ] Installation and configuration steps
+- [ ] Usage examples and command references
+- [ ] Troubleshooting and links to related docs
+
+If content is lost, recover from history:
+- `git show HEAD~1:<file>`
+- `git diff HEAD~1 HEAD -- <file>`
 
 ### 5. Move Files Gradually
 
@@ -109,7 +136,7 @@ docs/
 
 ## Related Skills
 
-- `doc-preserve-important-info` - Checklist and comparison when updating README or key docs
+- `doc-technical-documentation-structure` - Plan modular doc layout before physical moves
 - `qa-validate-and-fix-links` - Fix links after moving files
 
 ## Example Workflow

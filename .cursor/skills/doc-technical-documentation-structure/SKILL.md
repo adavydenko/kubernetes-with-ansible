@@ -6,7 +6,11 @@ description: Create modular structure for technical documentation by splitting l
 
 Create a modular, well-organized structure for technical documentation that improves readability, navigation, and serves different audience levels.
 
-## When to Use
+## Primary intent
+
+Design and apply a modular documentation architecture (topics, modules, navigation) for technical docs.
+
+## Use when
 
 - User requests to improve documentation structure
 - Documentation files are too large (exceeding token limits)
@@ -14,6 +18,20 @@ Create a modular, well-organized structure for technical documentation that impr
 - Documentation is hard to navigate or find information
 - User mentions "organize documentation", "split files", "modular structure"
 - Creating new technical documentation from scratch
+
+## Do NOT use when
+
+- You are primarily moving files/directories across the project tree
+- You are only removing duplicate paragraphs or files
+- You are only reformatting content into tables/lists without structural redesign
+- You are handling translation validation
+
+## Use other skills instead when
+
+- Use `doc-reorganize-project-structure` for physical file relocation and repo-level reorganization
+- Use `doc-eliminate-duplication` for single-source-of-truth cleanup
+- Use `qa-file-size-management` for size-threshold planning and split triggers
+- Use `qa-validate-and-fix-links` after refactors to repair links
 
 ## Instructions
 
@@ -157,5 +175,5 @@ docs/
 
 - `qa-validate-and-fix-links` - Fix links after restructuring
 - `doc-eliminate-duplication` - Remove duplicate content
-- `doc-preserve-important-info` - Ensure nothing is lost
+- `doc-reorganize-project-structure` - Execute physical moves after module plan is finalized
 

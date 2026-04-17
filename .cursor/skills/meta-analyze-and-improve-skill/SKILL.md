@@ -6,7 +6,11 @@ description: Perform deep analysis of a specific Agent Skill and propose concret
 
 Perform comprehensive analysis of a specific Agent Skill, identify issues, and propose concrete improvements with priorities.
 
-## When to Use
+## Primary intent
+
+Improve one selected existing skill through deep quality analysis and concrete edits/recommendations.
+
+## Use when
 
 - User wants to improve existing skill
 - Need to check skill quality
@@ -14,8 +18,20 @@ Perform comprehensive analysis of a specific Agent Skill, identify issues, and p
 - Ensuring standards compliance
 - User mentions "improve skill", "check skill quality", "optimize skill", or "review skill"
 - After skill creation to validate quality
-- After creating a skill from a dialog (`create-skills-from-dialogs`) to validate quality
+- After creating a skill from a dialog (`meta-create-skills-from-dialogs`) to validate quality
 - When skill seems too verbose or unclear
+
+## Do NOT use when
+
+- The goal is reviewing the entire skill library for duplicates
+- The goal is creating a new skill from dialog transcripts
+- The request is not skill-quality analysis (e.g., domain task implementation)
+- You only need light typo edits without quality review
+
+## Use other skills instead when
+
+- Use `meta-review-skills-for-duplicates` for collection-wide dedup/consolidation
+- Use `meta-create-skills-from-dialogs` to author new skills from conversations
 
 ## Instructions
 

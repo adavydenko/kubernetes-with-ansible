@@ -6,7 +6,11 @@ description: Generate PlantUML diagrams for visualizing architecture, processes,
 
 Create PlantUML diagrams to visualize complex architectures, processes, and system interactions in technical documentation and educational materials.
 
-## When to Use
+## Primary intent
+
+Generate PlantUML source for visual diagrams that explain architecture, processes, or interactions.
+
+## Use when
 
 - User requests diagrams or visualizations
 - Need to explain architecture or processes
@@ -14,6 +18,20 @@ Create PlantUML diagrams to visualize complex architectures, processes, and syst
 - User mentions "diagram", "visualize", "architecture", "process flow", "flowchart"
 - Explaining complex system interactions, hierarchical structures, or data flows
 - Creating documentation for presentations or learning content
+
+## Do NOT use when
+
+- The task is purely textual formatting or readability rewrite
+- The task is file structure reorganization
+- The task is glossary/translation work
+- The task is compatibility/version changelog authoring
+
+## Use other skills instead when
+
+- Use `doc-enhance-technical-markdown` for richer textual explanations
+- Use `doc-reorganize-project-structure` for file moves and layout changes
+- Use `doc-i18n-create-terminology-glossary` for terminology work
+- Use `doc-documentation-versioning` for changelog/compatibility maintenance
 
 ## Instructions
 
@@ -243,5 +261,5 @@ Before completing:
 ## Related Skills
 
 - `doc-technical-documentation-structure` - Organize diagram documentation
-- `doc-preserve-important-info` - Maintain diagram accuracy
+- `doc-reorganize-project-structure` - Keep diagram links valid when files move
 

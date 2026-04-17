@@ -6,7 +6,11 @@ description: Generate comprehensive educational questions from lecture materials
 
 Generate high-quality educational questions from lecture materials at varying difficulty levels (easy, medium, hard) with proper alignment to learning objectives and Bloom's taxonomy.
 
-## When to Use
+## Primary intent
+
+Create new assessment questions from source learning materials.
+
+## Use when
 
 - User requests question generation from lecture materials
 - Creating quiz/test materials from PPTX/PDF content
@@ -14,6 +18,19 @@ Generate high-quality educational questions from lecture materials at varying di
 - Building assessment banks from course content
 - User mentions "generate questions", "create quiz", "test questions", or "assessment"
 - Need to create questions at different difficulty levels
+
+## Do NOT use when
+
+- The question set already exists and needs quality audit
+- The request is course structure/roadmap creation
+- The request is practical lab assignment design (not question bank generation)
+- The request is rubric/progress tracking only
+
+## Use other skills instead when
+
+- Use `edu-educational-question-validator` to review and score existing questions
+- Use `edu-structure-learning-materials` for learning path architecture
+- Use `edu-create-practical-exercises` for hands-on exercise design
 
 ## Instructions
 

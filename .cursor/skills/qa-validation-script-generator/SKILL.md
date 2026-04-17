@@ -6,7 +6,11 @@ description: Generate bash scripts for validating system configurations, checkin
 
 Create comprehensive bash scripts for validating configurations, checking system health, and diagnosing issues in technical environments.
 
-## When to Use
+## Primary intent
+
+Generate reusable automation scripts that run validation checks repeatedly in CLI/CI workflows.
+
+## Use when
 
 - User requests validation or health check scripts
 - Need automated configuration verification
@@ -14,6 +18,19 @@ Create comprehensive bash scripts for validating configurations, checking system
 - User mentions "validate", "check", "diagnose", "health check"
 - Setting up CI/CD validation steps
 - Troubleshooting system issues
+
+## Do NOT use when
+
+- The task is a one-off manual validation of code examples
+- The task is only fixing broken links in docs
+- The task is post-failure generation recovery strategy
+- The task is educational question-set QA
+
+## Use other skills instead when
+
+- Use `edu-validate-code-examples` for one-off validation of tutorial/docs snippets
+- Use `qa-validate-and-fix-links` for markdown/file link integrity
+- Use `qa-error-handling-generation` for recovery after generation failures
 
 ## Instructions
 

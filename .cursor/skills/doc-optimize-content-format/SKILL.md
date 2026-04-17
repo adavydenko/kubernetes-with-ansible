@@ -6,13 +6,31 @@ description: Optimize content format by converting verbose lists to tables, grou
 
 Optimize content format by converting verbose lists to tables, grouping related information, and improving readability while preserving all information.
 
-## When to Use
+## Primary intent
+
+Improve intra-document presentation (tables, grouping, scannability) without changing document scope or file layout.
+
+## Use when
 
 - Content has long, repetitive lists
 - Information is hard to navigate
 - User mentions "table", "organize", "format", or "optimize"
 - Content contains structured data that could be tabular
 - Need to improve readability and navigation
+
+## Do NOT use when
+
+- You need to split files or redesign documentation architecture
+- You need to move files/directories across the repository
+- You need to remove duplicate content across documents
+- You need to translate or validate translated documentation
+
+## Use other skills instead when
+
+- Use `doc-technical-documentation-structure` for module/file architecture changes
+- Use `doc-reorganize-project-structure` for file moves and path changes
+- Use `doc-eliminate-duplication` for cross-file deduplication
+- Use `doc-enhance-technical-markdown` for semantic expansion and explanatory depth
 
 ## Instructions
 

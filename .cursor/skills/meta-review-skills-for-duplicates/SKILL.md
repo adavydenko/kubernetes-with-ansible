@@ -6,7 +6,11 @@ description: Review all existing Agent Skills to identify duplicates, overlaps, 
 
 Review all existing Agent Skills in `.cursor/skills/` to identify duplicates, functional overlaps, and opportunities for consolidation.
 
-## When to Use
+## Primary intent
+
+Audit the entire skill collection for duplicate/overlapping capabilities and produce consolidation actions.
+
+## Use when
 
 - User requests review of skill collection
 - Need to find duplicate or overlapping skills
@@ -14,6 +18,18 @@ Review all existing Agent Skills in `.cursor/skills/` to identify duplicates, fu
 - User mentions "duplicates", "overlaps", "review skills", or "consolidate skills"
 - Before major skill collection reorganization
 - When skill collection grows large
+
+## Do NOT use when
+
+- You need to create a brand-new skill from one dialog
+- You need to improve wording/structure of one specific skill only
+- You only need link/path validation in docs
+- You are implementing domain behavior outside skill-library governance
+
+## Use other skills instead when
+
+- Use `meta-create-skills-from-dialogs` to generate new skills from conversations
+- Use `meta-analyze-and-improve-skill` to deeply improve a single skill
 
 ## Instructions
 
@@ -199,7 +215,7 @@ Create structured report:
 
 **Analysis:** Overlap in link fixing and content preservation procedures
 
-**Recommendation:** Keep separate (different primary purposes), document that `reorganize-project-structure` can use `eliminate-duplication` after reorganization
+**Recommendation:** Keep separate (different primary purposes), document that `doc-reorganize-project-structure` can use `doc-eliminate-duplication` after reorganization
 
 ### Example: Consolidation Recommendation
 

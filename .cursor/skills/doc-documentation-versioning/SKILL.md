@@ -6,7 +6,11 @@ description: Add version tracking, compatibility matrices, and changelog to tech
 
 Add comprehensive version tracking to technical documentation including compatibility matrices, changelog, and migration guides.
 
-## When to Use
+## Primary intent
+
+Add and maintain version history, compatibility mapping, and migration context for technical documentation.
+
+## Use when
 
 - User requests version tracking for documentation
 - Documentation needs compatibility information
@@ -14,6 +18,20 @@ Add comprehensive version tracking to technical documentation including compatib
 - Tracking changes across documentation versions
 - User mentions "versioning", "compatibility", "changelog", "release notes"
 - Documentation references specific software versions
+
+## Do NOT use when
+
+- The task is restructuring files/directories
+- The task is deduplicating repeated content without version semantics
+- The task is translation/localization work
+- The task is diagram creation only
+
+## Use other skills instead when
+
+- Use `doc-reorganize-project-structure` for file-level reorganization
+- Use `doc-eliminate-duplication` for single-source dedup cleanup
+- Use `doc-i18n-translate-technical-documentation` for translation tasks
+- Use `doc-plantuml-diagram-generator` for architecture/process diagrams
 
 ## Instructions
 
@@ -167,6 +185,6 @@ Ensure all documentation references:
 
 ## Related Skills
 
-- `technical-documentation-structure` - Organize documentation
-- `preserve-important-info` - Maintain changelog accuracy
+- `doc-technical-documentation-structure` - Organize documentation
+- `doc-reorganize-project-structure` - Preserve key changelog/version context during doc moves
 

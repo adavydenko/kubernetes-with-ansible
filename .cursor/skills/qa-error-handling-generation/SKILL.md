@@ -6,7 +6,11 @@ description: Handle errors gracefully during documentation generation when gener
 
 Handle errors gracefully during documentation generation, including token limits, file size issues, and generation failures.
 
-## When to Use
+## Primary intent
+
+Recover from documentation-generation failures and preserve progress with explicit fallback strategies.
+
+## Use when
 
 - Generation has already failed or reported a token/size limit error
 - Documentation generation fails
@@ -15,6 +19,19 @@ Handle errors gracefully during documentation generation, including token limits
 - Generation process errors
 - User reports generation issues
 - Need robust error recovery
+
+## Do NOT use when
+
+- You are still planning and can prevent limits proactively
+- The task is only file/module architecture design
+- The task is only link validation or markdown cleanup
+- The task is translation QA
+
+## Use other skills instead when
+
+- Use `qa-file-size-management` before failures occur to prevent size-limit issues
+- Use `doc-technical-documentation-structure` for deterministic module split design
+- Use `qa-validate-and-fix-links` for broken link repair after file changes
 
 ## Instructions
 
@@ -190,5 +207,5 @@ Split K8S.md into:
 
 - `qa-file-size-management` - Prevent size issues
 - `doc-technical-documentation-structure` - Organize after error recovery
-- `doc-preserve-important-info` - Ensure nothing is lost
+- `doc-reorganize-project-structure` - Ensure critical content remains intact during recovery-driven splits
 

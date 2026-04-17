@@ -6,14 +6,31 @@ description: Transform unstructured technical notes into organized, hierarchical
 
 Transform unstructured technical notes into organized, hierarchical learning content with clear progression from basics to advanced concepts.
 
-## When to Use
+## Primary intent
+
+Design learning-path architecture across multiple topics/files/modules, including sequencing and navigation.
+
+## Use when
 
 - User wants to create educational documentation from technical notes
 - Converting raw technical content into structured learning guides
 - Organizing scattered documentation into coherent learning paths
 - Creating courses or tutorials
 - User mentions "learning guide", "tutorial", "educational material", or "course structure"
-- Use for organizing multiple files or sections into a single course or learning path; for transforming one document into a textbook use `adapt-technical-notes-to-textbook`
+- Use for organizing multiple files or sections into a single course or learning path; for transforming one document into a textbook use `doc-adapt-technical-notes-to-textbook`
+
+## Do NOT use when
+
+- The task is a single-document textbook expansion
+- The task is translation or terminology standardization
+- The task is only formatting or deduplication in existing docs
+- The task is generating question banks only
+
+## Use other skills instead when
+
+- Use `doc-adapt-technical-notes-to-textbook` for one-document textbook transformation
+- Use `doc-enhance-technical-markdown` for readability expansion without curriculum architecture
+- Use `edu-educational-question-generator` for standalone assessment creation
 
 ## Instructions
 

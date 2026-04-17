@@ -6,13 +6,29 @@ description: Create Agent Skills from AI agent dialogs by extracting lessons lea
 
 Create Agent Skills from AI agent dialogs by extracting valuable lessons, patterns, and procedural knowledge, then generating ready-to-use Skills following Agent Skills and Cursor standards.
 
-## When to Use
+## Primary intent
+
+Produce new skill definitions from prior agent dialog history.
+
+## Use when
 
 - User wants to create Skills from dialogs with AI agents
 - Need to preserve valuable experience from conversations
 - Converting dialog knowledge into reusable skills
 - User mentions "create skill from dialog", "save this conversation as skill", or "extract knowledge from chat"
 - After productive dialogs that contain reusable patterns
+
+## Do NOT use when
+
+- You need to audit the whole existing skill library for duplicates
+- You need to improve one already-existing skill in place
+- You need routing conflict analysis without creating new skills
+- The source is not dialog-derived and is already a written skill spec
+
+## Use other skills instead when
+
+- Use `meta-review-skills-for-duplicates` for collection-wide overlap/consolidation review
+- Use `meta-analyze-and-improve-skill` for focused improvement of a single existing skill
 
 ## Instructions
 

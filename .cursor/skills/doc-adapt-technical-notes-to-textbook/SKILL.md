@@ -1,23 +1,41 @@
 ---
-name: doc-adapt-technical-notes-to-textbook-en
-description: Transform technical notes and brief documentation into comprehensive English-language educational textbooks for students. Use when user wants to convert technical notes into learning materials in English, expand brief technical descriptions for educational purposes, or create student-friendly English textbooks with explanations, examples, and exercises.
+name: doc-adapt-technical-notes-to-textbook
+description: Transform technical notes and brief documentation into comprehensive educational textbooks for students. Use when user wants to convert technical notes into learning materials, expand brief technical descriptions for educational purposes, or create student-friendly textbooks with explanations, examples, and exercises in a target language.
 ---
 
-# Adapt Technical Notes to Textbook (EN)
+# Adapt Technical Notes to Textbook
 
-Transform technical notes and brief documentation into comprehensive educational textbooks suitable for students, with expanded explanations, practical examples, learning objectives, and assessment materials. **Output language: English.**
+Transform technical notes and brief documentation into comprehensive educational textbooks suitable for students, with expanded explanations, practical examples, learning objectives, and assessment materials. **Output language: requested target language (for example English or Russian).**
 
-## When to Use
+## Primary intent
 
-- User wants to convert technical notes into educational materials in English
-- Need to adapt technical documentation for English-speaking students
+Transform one technical source document into a student-ready textbook with pedagogy (objectives, checks, exercises, resources).
+
+## Use when
+
+- User wants to convert technical notes into educational materials in a specific language
+- Need to adapt technical documentation for students in the target language
 - User requests to create a textbook or learning guide from notes
 - Technical material is too brief and needs educational expansion
 - User mentions "textbook", "learning materials", "for students", "educational guide", or "teaching materials"
-- Converting expert-level notes into beginner-friendly English content
+- Converting expert-level notes into beginner-friendly content
 - Creating course materials from technical documentation
-- When you only need to improve readability without educational structure — use `doc-enhance-technical-markdown-en`
+- When you only need to improve readability without educational structure — use `doc-enhance-technical-markdown`
 - Use for a single document; for organizing multiple materials into a course use `edu-structure-learning-materials`
+
+## Do NOT use when
+
+- You only need readability improvements without educational scaffolding
+- You need a cross-document course map or learning path architecture
+- You are generating only quiz banks or validating questions
+- You are translating documentation between languages
+
+## Use other skills instead when
+
+- Use `doc-enhance-technical-markdown` for non-pedagogical expansion
+- Use `edu-structure-learning-materials` for multi-file learning roadmap design
+- Use `edu-create-practical-exercises` when only exercise packs are requested
+- Use `edu-educational-question-generator` when the request is only assessment question generation
 
 ## Instructions
 
@@ -271,7 +289,7 @@ Process the document:
 - ✅ Include troubleshooting and common mistakes sections
 - ✅ Add visual aids descriptions and diagrams
 
-## Transformation Pattern (EN)
+## Transformation Pattern
 
 ### Pattern: Technical Note → Educational Section
 
@@ -282,7 +300,7 @@ Brief technical description.
 Command: `example-command`
 ```
 
-**Output (educational textbook, English):**
+**Output (educational textbook):**
 ```markdown
 ## Feature Name
 
@@ -337,12 +355,12 @@ example-command
 - [Resource 2]
 ```
 
-## Prompt Template for LLM (EN)
+## Prompt Template for LLM
 
 When transforming technical notes using an LLM, use this template:
 
 ```
-You are an experienced technical writer and instructor specializing in DevOps and Kubernetes. Your task is to transform technical notes into a well-structured English-language learning textbook for students.
+You are an experienced technical writer and instructor specializing in DevOps and Kubernetes. Your task is to transform technical notes into a well-structured learning textbook for students in the requested target language.
 
 ## Context
 You have technical notes about [technology/domain]. The material is written as bullet points for technical specialists, but it must be made accessible for students who are learning these technologies.
@@ -399,7 +417,7 @@ For each major section:
 
 Start by analyzing the provided material and designing the textbook structure. Each section should include theory, practice, and a way to check understanding.
 
-**Language:** English only.
+**Language:** Use only the target language requested by the user.
 ```
 
 ## Validation Checklist

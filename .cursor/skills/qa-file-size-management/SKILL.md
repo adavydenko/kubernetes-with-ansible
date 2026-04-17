@@ -6,7 +6,11 @@ description: Manage file sizes by planning splits or splitting existing large fi
 
 Manage file sizes during documentation generation to prevent token limit issues and ensure efficient processing.
 
-## When to Use
+## Primary intent
+
+Prevent generation/runtime failures by proactively planning and executing size-aware file splits.
+
+## Use when
 
 - Planning documentation generation or splitting existing large files (before hitting limits)
 - File generation exceeds token limits
@@ -15,6 +19,19 @@ Manage file sizes during documentation generation to prevent token limit issues 
 - Documentation files are hard to edit
 - User mentions "file too large", "token limit", "split file"
 - Need to optimize file organization
+
+## Do NOT use when
+
+- The failure has already happened and needs recovery handling
+- The main task is repo-level file reorganization beyond size concerns
+- The main task is deduplicating overlapping content
+- The task is translation or localization
+
+## Use other skills instead when
+
+- Use `qa-error-handling-generation` when generation already failed and recovery is required
+- Use `doc-technical-documentation-structure` when redesigning information architecture
+- Use `doc-reorganize-project-structure` for broad directory moves and path updates
 
 ## Instructions
 

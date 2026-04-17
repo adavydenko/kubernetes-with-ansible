@@ -6,13 +6,31 @@ description: Create practical exercises with clear objectives, practical importa
 
 Create practical exercises with clear objectives, practical importance justification, success criteria, and helpful hints (not full solutions).
 
-## When to Use
+## Primary intent
+
+Create hands-on learning tasks that train practical execution skills with measurable outcomes.
+
+## Use when
 
 - Creating educational materials or tutorials
 - Adding exercises to learning guides
 - Creating training content
 - User mentions "exercises", "practice", "hands-on", or "lab"
 - Need to reinforce learning with practical application
+
+## Do NOT use when
+
+- The user needs quiz/test question generation instead of lab tasks
+- The user needs validation of existing question quality
+- The user needs a progress tracking matrix only
+- The task is course architecture planning across many modules
+
+## Use other skills instead when
+
+- Use `edu-educational-question-generator` for assessment-question banks
+- Use `edu-educational-question-validator` for question-set QA
+- Use `edu-create-progress-tracking` for self-assessment/checklist systems
+- Use `edu-structure-learning-materials` for multi-module learning-path design
 
 ## Instructions
 

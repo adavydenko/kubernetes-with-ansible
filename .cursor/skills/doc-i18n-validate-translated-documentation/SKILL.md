@@ -6,13 +6,30 @@ description: Validate translated technical documentation to ensure code integrit
 
 Comprehensive validation of translated technical documentation to ensure code blocks are intact, terminology is consistent, and all functionality is preserved.
 
-## When to Use
+## Primary intent
+
+Quality-assure already translated technical documentation for correctness, consistency, and markdown integrity.
+
+## Use when
 
 - After completing translation work
 - When user reports issues with translated documentation
 - Before finalizing or committing translated files
 - When checking documentation quality
 - User mentions "validate", "check translation", or "verify documentation"
+
+## Do NOT use when
+
+- The translation itself has not been done yet
+- The request is to build a terminology glossary from scratch
+- The request is to rewrite content for readability in the same language
+- The request is project/file structure reorganization
+
+## Use other skills instead when
+
+- Use `doc-i18n-translate-technical-documentation` to perform the translation
+- Use `doc-i18n-create-terminology-glossary` for term standardization
+- Use `qa-validate-and-fix-links` for non-translation link fixes after file moves
 
 ## Instructions
 

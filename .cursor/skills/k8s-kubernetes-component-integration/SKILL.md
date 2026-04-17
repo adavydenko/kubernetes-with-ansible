@@ -6,13 +6,31 @@ description: Integrate new Kubernetes components with existing infrastructure, h
 
 Integrate new Kubernetes components with existing cluster infrastructure, ensuring proper dependencies, storage integration, service discovery, and monitoring.
 
-## When to Use
+## Primary intent
+
+Implement and wire a selected Kubernetes component into an already running cluster and dependency ecosystem.
+
+## Use when
 
 - Adding new component to existing Kubernetes cluster
 - Configuring dependencies between components
 - Integrating component with storage, networking, or monitoring
 - Updating component to work with existing infrastructure
 - User requests component that needs integration
+
+## Do NOT use when
+
+- The task is pre-implementation gap analysis
+- The task is evaluating multiple architectural alternatives
+- The task is enabling/disabling optional flags without new integration flows
+- The task is only setting up the monitoring stack from scratch
+
+## Use other skills instead when
+
+- Use `k8s-kubernetes-infrastructure-analysis` before deciding what to add
+- Use `k8s-solution-design-with-alternatives` when the component choice is undecided
+- Use `k8s-monitoring-stack-setup` for dedicated monitoring stack deployment
+- Use `k8s-optional-feature-implementation` for feature-flag-driven optional behavior
 
 ## Instructions
 

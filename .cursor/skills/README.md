@@ -29,17 +29,6 @@ Validate all file links in a project and automatically fix broken links.
 **Includes:**
 - Script: `scripts/check-links.sh` - Automated link validation script
 
-### 3. `doc-preserve-important-info`
-Preserve all important information when refactoring files, especially README.md.
-
-**Use when:**
-- Refactoring README.md or other important documentation
-- Updating file structure
-- Reorganizing content
-- Before making major changes to documentation
-
-**Invoke:** `/doc-preserve-important-info` or let agent decide automatically
-
 ### 4. `doc-eliminate-duplication`
 Identify and eliminate duplicate information in project documentation.
 
@@ -109,17 +98,6 @@ Generate PlantUML diagrams for visualizing architecture, processes, and system i
 
 **Invoke:** `/doc-plantuml-diagram-generator` or let agent decide automatically
 
-### 10. `doc-i18n-glossary-generator`
-Generate comprehensive glossaries from technical documentation with organized term definitions.
-
-**Use when:**
-- Documentation has many technical terms
-- User requests glossary
-- Need centralized term reference
-- Improving documentation accessibility
-
-**Invoke:** `/doc-i18n-glossary-generator` or let agent decide automatically
-
 ### 11. `qa-file-size-management`
 Manage file sizes during documentation generation to avoid token limits and ensure efficient processing.
 
@@ -142,7 +120,7 @@ Handle errors gracefully during documentation generation, including token limits
 
 **Invoke:** `/qa-error-handling-generation` or let agent decide automatically
 
-### 13. `enhance-technical-markdown`
+### 13. `doc-enhance-technical-markdown`
 Transform technical Markdown files into expanded, more readable versions with higher readability index while preserving technical accuracy.
 
 **Use when:**
@@ -153,7 +131,7 @@ Transform technical Markdown files into expanded, more readable versions with hi
 - User mentions "improve readability", "expand description", or "enrich content"
 - Technical documentation needs better explanations for non-experts
 
-**Invoke:** `/enhance-technical-markdown` or let agent decide automatically
+**Invoke:** `/doc-enhance-technical-markdown` or let agent decide automatically
 
 ## Localization Skills
 
@@ -236,7 +214,7 @@ Systematically validate educational questions for quality, fairness, and pedagog
 - Psychometric validation (discrimination, reliability)
 - Practical validation (administration feasibility, student experience)
 
-### 19. `doc-adapt-technical-notes-to-textbook-en` / `doc-adapt-technical-notes-to-textbook-ru`
+### 19. `doc-adapt-technical-notes-to-textbook`
 Transform technical notes and brief documentation into comprehensive educational textbooks for students with expanded explanations, practical examples, learning objectives, and assessment materials.
 
 **Use when:**
@@ -248,7 +226,7 @@ Transform technical notes and brief documentation into comprehensive educational
 - Converting expert-level notes into beginner-friendly content
 - Creating course materials from technical documentation
 
-**Invoke:** `/doc-adapt-technical-notes-to-textbook-en` or `/doc-adapt-technical-notes-to-textbook-ru`, or let agent decide automatically
+**Invoke:** `/doc-adapt-technical-notes-to-textbook` or let agent decide automatically
 
 **Features:**
 - Transforms brief technical notes into comprehensive educational content
@@ -330,25 +308,21 @@ Skills are automatically available to the agent. The agent will decide when to u
 Type `/` in Agent chat and search for the skill name:
 - `/doc-reorganize-project-structure`
 - `/qa-validate-and-fix-links`
-- `/doc-preserve-important-info`
 - `/doc-eliminate-duplication`
 - `/ansible-role-cleanup`
 - `/doc-technical-documentation-structure`
 - `/doc-documentation-versioning`
 - `/qa-validation-script-generator`
 - `/doc-plantuml-diagram-generator`
-- `/doc-i18n-glossary-generator`
 - `/qa-file-size-management`
 - `/qa-error-handling-generation`
-- `/doc-enhance-technical-markdown-en`
-- `/doc-enhance-technical-markdown-ru`
+- `/doc-enhance-technical-markdown`
 - `/doc-i18n-translate-technical-documentation`
 - `/doc-i18n-create-terminology-glossary`
 - `/doc-i18n-validate-translated-documentation`
 - `/edu-educational-question-generator`
 - `/edu-educational-question-validator`
-- `/doc-adapt-technical-notes-to-textbook-en`
-- `/doc-adapt-technical-notes-to-textbook-ru`
+- `/doc-adapt-technical-notes-to-textbook`
 - `/meta-create-skills-from-dialogs`
 - `/meta-review-skills-for-duplicates`
 - `/meta-analyze-and-improve-skill`
@@ -359,10 +333,9 @@ Type `/` in Agent chat and search for the skill name:
 
 For comprehensive project reorganization:
 
-1. **First**: Use `doc-preserve-important-info` to save important information
-2. **Then**: Use `doc-reorganize-project-structure` to reorganize files
-3. **After**: Use `qa-validate-and-fix-links` to fix all links
-4. **Finally**: Use `doc-eliminate-duplication` to remove duplicates
+1. **First**: Use `doc-reorganize-project-structure` to plan and execute file moves with preservation checklist
+2. **Then**: Use `qa-validate-and-fix-links` to fix all links
+3. **Finally**: Use `doc-eliminate-duplication` to remove duplicates
 
 ### Ansible Role Cleanup Workflow
 
@@ -381,7 +354,7 @@ For creating comprehensive technical documentation:
 1. **Structure**: Use `doc-technical-documentation-structure` to organize content
 2. **Size Management**: Use `qa-file-size-management` to prevent token limit issues
 3. **Error Handling**: Use `qa-error-handling-generation` for robust generation
-4. **Glossary**: Use `doc-i18n-glossary-generator` for term definitions
+4. **Glossary**: Use `doc-i18n-create-terminology-glossary` for canonical term definitions and translations
 5. **Diagrams**: Use `doc-plantuml-diagram-generator` for visualizations
 6. **Versioning**: Use `doc-documentation-versioning` for version tracking
 7. **Validation**: Use `qa-validation-script-generator` for check scripts
@@ -409,7 +382,7 @@ For creating and validating educational questions:
 
 For converting technical notes into educational textbooks:
 
-1. **Analyze**: Use `doc-adapt-technical-notes-to-textbook-en` or `doc-adapt-technical-notes-to-textbook-ru` to analyze source material
+1. **Analyze**: Use `doc-adapt-technical-notes-to-textbook` to analyze source material
 2. **Transform**: Expand technical notes with explanations, examples, and context
 3. **Enhance**: Add learning objectives, exercises, and assessment materials
 4. **Validate**: Ensure technical accuracy and educational value
